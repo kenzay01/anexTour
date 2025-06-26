@@ -1,0 +1,245 @@
+"use client";
+import { useState, useEffect, useRef } from "react";
+import SliderItem from "./SliderItem";
+import { useCurrentLanguage } from "@/hooks/getCurrentLanguage";
+import { useDictionary } from "@/hooks/getDictionary";
+import { Locale } from "@/i18n/config";
+import indiaImg from "@/public/countries/india.jpg";
+import thailandImg from "@/public/countries/tailand.jpg";
+import thailand2Img from "@/public/countries/tailand2.jpg";
+import israelImg from "@/public/countries/israel.jpg";
+import oaeImg from "@/public/countries/oae.jpg";
+import oae2Img from "@/public/countries/oae2.jpg";
+import tanzaniaImg from "@/public/countries/tanzania.jpg";
+import turkeyImg from "@/public/countries/turkey.jpg";
+
+export default function SliderContainer({
+  title,
+  styles,
+}: {
+  title: string;
+  styles?: string;
+}) {
+  const [currentSlide, setCurrentSlide] = useState(0);
+  const [isAutoPlaying, setIsAutoPlaying] = useState(true);
+  const sliderRef = useRef<HTMLDivElement>(null);
+
+  const currentLocale = useCurrentLanguage() as Locale;
+  const { dict, loading } = useDictionary(currentLocale);
+
+  // Дані для слайдів з локалізацією
+  const slides = [
+    {
+      id: 1,
+      destination: dict?.slider?.destinations?.tanzania || "Танзанія",
+      image: tanzaniaImg,
+    },
+    {
+      id: 2,
+      destination: dict?.slider?.destinations?.thailand || "Таїланд",
+      image: thailandImg,
+    },
+    {
+      id: 3,
+      destination: dict?.slider?.destinations?.israel || "Ізраїль",
+      image: israelImg,
+    },
+    {
+      id: 4,
+      destination: dict?.slider?.destinations?.uae || "ОАЕ",
+      image: oaeImg,
+    },
+    {
+      id: 5,
+      destination: dict?.slider?.destinations?.uae || "ОАЕ",
+      image: oae2Img,
+    },
+    {
+      id: 6,
+      destination: dict?.slider?.destinations?.india || "Індія",
+      image: indiaImg,
+    },
+    {
+      id: 7,
+      destination: dict?.slider?.destinations?.thailand || "Таїланд",
+      image: thailand2Img,
+    },
+    {
+      id: 8,
+      destination: dict?.slider?.destinations?.turkey || "Туреччина",
+      image: turkeyImg,
+    },
+  ];
+
+  // Автоматичне прокручування
+  useEffect(() => {
+    let interval: NodeJS.Timeout;
+    if (isAutoPlaying) {
+      interval = setInterval(() => {
+        setCurrentSlide((prev) => (prev + 1) % slides.length);
+      }, 4000);
+    }
+    return () => clearInterval(interval);
+  }, [isAutoPlaying, slides.length]);
+
+  // Сенсорне прокручування
+  useEffect(() => {
+    const slider = sliderRef.current;
+    if (!slider) return;
+
+    let startX: number;
+    let isDragging = false;
+
+    const handleTouchStart = (e: TouchEvent) => {
+      startX = e.touches[0].clientX;
+      isDragging = true;
+      setIsAutoPlaying(false);
+    };
+
+    const handleTouchMove = (e: TouchEvent) => {
+      if (!isDragging) return;
+      const currentX = e.touches[0].clientX;
+      const diff = startX - currentX;
+      if (diff > 50) {
+        nextSlide();
+        isDragging = false;
+      } else if (diff < -50) {
+        prevSlide();
+        isDragging = false;
+      }
+    };
+
+    const handleTouchEnd = () => {
+      isDragging = false;
+    };
+
+    slider.addEventListener("touchstart", handleTouchStart);
+    slider.addEventListener("touchmove", handleTouchMove);
+    slider.addEventListener("touchend", handleTouchEnd);
+
+    return () => {
+      slider.removeEventListener("touchstart", handleTouchStart);
+      slider.removeEventListener("touchmove", handleTouchMove);
+      slider.removeEventListener("touchend", handleTouchEnd);
+    };
+  }, []);
+
+  // Переходи до наступного/попереднього слайду
+  const nextSlide = () => {
+    setIsAutoPlaying(false);
+    setCurrentSlide((prev) => (prev + 1) % slides.length);
+  };
+
+  const prevSlide = () => {
+    setIsAutoPlaying(false);
+    setCurrentSlide((prev) => (prev - 1 + slides.length) % slides.length);
+  };
+
+  // Обробка кліку на слайд
+  const handleSlideClick = (index: number) => {
+    setIsAutoPlaying(false);
+    setCurrentSlide(index);
+  };
+
+  if (loading) {
+    return <div>Loading...</div>;
+  }
+
+  return (
+    <section className={`py-8 bg-gray-50 ${styles}`}>
+      <div className="max-w-8xl mx-auto px-4">
+        {/* Заголовок */}
+        <div className="text-center mb-12 relative">
+          <h2 className="text-4xl md:text-5xl font-semibold text-blue-900 mb-4">
+            {title}
+          </h2>
+        </div>
+
+        {/* Слайдер */}
+        <div className="relative">
+          {/* Кнопка "Назад" */}
+          <button
+            onClick={prevSlide}
+            className="absolute left-0 top-1/2 -translate-y-1/2 z-10 bg-orange-500 hover:bg-orange-600 text-white w-12 h-12 rounded-full flex items-center justify-center transition-colors duration-300 shadow-lg"
+          >
+            <svg
+              className="w-6 h-6"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth={2}
+                d="M15 19l-7-7 7-7"
+              />
+            </svg>
+          </button>
+
+          {/* Контейнер слайдів */}
+          <div ref={sliderRef} className="overflow-hidden mx-12">
+            <div
+              className="flex gap-6 transition-transform duration-500 ease-in-out"
+              style={{
+                transform: `translateX(-${currentSlide * 280}px)`,
+              }}
+            >
+              {[...slides, ...slides].map((slide, index) => (
+                <SliderItem
+                  key={"id=" + slide.id + "," + index}
+                  destination={slide.destination}
+                  image={slide.image}
+                  isActive={slides.indexOf(slide) === currentSlide}
+                  onClick={() => {
+                    console.log(`Clicked on slide: ${slide.destination}`);
+                  }}
+                />
+              ))}
+            </div>
+          </div>
+
+          {/* Кнопка "Вперед" */}
+          <button
+            onClick={nextSlide}
+            className="absolute right-0 top-1/2 -translate-y-1/2 z-10 bg-orange-500 hover:bg-orange-600 text-white w-12 h-12 rounded-full flex items-center justify-center transition-colors duration-300 shadow-lg"
+          >
+            <svg
+              className="w-6 h-6"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth={2}
+                d="M9 5l7 7-7 7"
+              />
+            </svg>
+          </button>
+        </div>
+
+        {/* Індикатори */}
+        <div className="flex justify-center mt-8 gap-2">
+          {slides.map((_, index) => (
+            <button
+              key={index}
+              onClick={() => handleSlideClick(index)}
+              className={`w-3 h-3 rounded-full transition-colors duration-300 ${
+                index === currentSlide ? "bg-orange-500" : "bg-gray-300"
+              }`}
+            />
+          ))}
+        </div>
+
+        {/* Мобільна кнопка "Замовити дзвінок" */}
+        <div className="text-center mt-8 lg:hidden">
+          <button className="text-red-500 hover:text-red-700 font-medium border-b border-red-500 hover:border-red-700 transition-colors">
+            {dict?.header?.cta?.callBack || "Замовити дзвінок"}
+          </button>
+        </div>
+      </div>
+    </section>
+  );
+}
