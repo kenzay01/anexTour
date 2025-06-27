@@ -21,20 +21,22 @@ export default function SliderItem({
   return (
     <div
       className={`relative flex-shrink-0 cursor-pointer transition-all duration-500 ${
-        isActive ? "w-80" : "w-64"
+        isActive ? "md:w-80 w-full" : "md:w-64 w-full"
       }`}
       onClick={onClick}
     >
-      <div className="h-60 overflow-hidden ">
+      <div className="md:h-60 h-40 overflow-hidden">
         <Image
           src={image}
           alt={destination}
           className="w-full h-full object-cover transition-transform duration-500 hover:scale-110"
         />
       </div>
-      <div className="bg-slate-700 text-white p-6  text-center">
-        <h3 className="text-xl font-bold mb-4">{destination}</h3>
-        <button className="w-full bg-orange-500 hover:bg-orange-600 text-white font-bold py-3 px-6 transition-colors duration-300">
+      <div className="bg-slate-700 text-white md:p-6 p-4 text-center">
+        <h3 className="md:text-xl text-lg font-bold md:mb-4 mb-2">
+          {destination}
+        </h3>
+        <button className="w-full bg-orange-500 hover:bg-orange-600 text-white font-bold md:py-3 py-2 md:px-6 px-4 md:text-base text-sm transition-colors duration-300">
           {dict?.slider?.selectTour || "Підібрати тур"}
         </button>
       </div>

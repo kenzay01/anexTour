@@ -13,6 +13,10 @@ import SchemaComponent from "@/components/SchemaComponent";
 import PartnersContainer from "@/components/PartnersContainer";
 import IndividualComponent from "@/components/IndividualComponent";
 import CommentsContainer from "@/components/CommentsContainer";
+import MapContainer from "@/components/MapContainer";
+import logoImg from "@/public/logotip.png";
+import Image from "next/image";
+import RightSideButtons from "@/components/RightSideButtons";
 export default function HomePage() {
   const currentLocale = useCurrentLanguage() as Locale;
   const { dict } = useDictionary(currentLocale);
@@ -35,6 +39,11 @@ export default function HomePage() {
       <PartnersContainer />
       <IndividualComponent />
       <CommentsContainer />
+      <MapContainer />
+      <div className="flex justify-center items-center bg-white">
+        <Image src={logoImg} alt="ANEX Tour Logo" width={220} height={120} />
+      </div>
+      <RightSideButtons />
     </div>
   );
 }

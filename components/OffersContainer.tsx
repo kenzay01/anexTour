@@ -51,7 +51,7 @@ export default function OffersContainer() {
   }[];
 
   return (
-    <section className="bg-blue-900 py-16 px-4">
+    <section className="bg-white md:bg-blue-900 py-16 px-4">
       <div className="max-w-5xl mx-auto">
         <h1 className="text-4xl md:text-5xl font-semibold text-white text-center mb-12">
           {dict?.offers?.title || "Турагенція ANEX Tour пропонує"}

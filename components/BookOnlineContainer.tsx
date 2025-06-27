@@ -10,7 +10,7 @@ import { Locale } from "@/i18n/config";
 
 export default function BookOnlineContainer() {
   const currentLocale = useCurrentLanguage() as Locale;
-  const { dict, loading } = useDictionary(currentLocale);
+  const { dict } = useDictionary(currentLocale);
 
   type BookOnlineKey = "countries" | "beach" | "hotels" | "monuments";
 
@@ -47,7 +47,7 @@ export default function BookOnlineContainer() {
   }[];
 
   return (
-    <section className="relative py-18">
+    <section className="relative py-18 hidden md:block">
       <div className="absolute inset-0">
         <Image
           src={bookOnline}

@@ -63,13 +63,13 @@ export default function Offers2Container() {
           {offers.map((offer) => (
             <div
               key={offer.id}
-              className="flex flex-col items-center gap-2 mb-8 text-center"
+              className="flex flex-col items-center gap-2 mb-8 text-center "
             >
               {offer.img}
-              <h2 className="text-lg">
+              <h2 className="text-lg mb-2 md:mb-0">
                 {dict?.offers2?.[offer.titleKey] || offer.titleKey}
               </h2>
-              <p className="text-lg">
+              <p className="text-lg w-64 md:w-full">
                 {dict?.offers2?.[offer.contentKey] || offer.contentKey}
               </p>
             </div>

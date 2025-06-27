@@ -22,10 +22,23 @@ export default function SliderContainer({
 }) {
   const [currentSlide, setCurrentSlide] = useState(0);
   const [isAutoPlaying, setIsAutoPlaying] = useState(true);
+  const [isMobile, setIsMobile] = useState(false);
   const sliderRef = useRef<HTMLDivElement>(null);
 
   const currentLocale = useCurrentLanguage() as Locale;
   const { dict, loading } = useDictionary(currentLocale);
+
+  // Визначення мобільного пристрою
+  useEffect(() => {
+    const checkMobile = () => {
+      setIsMobile(window.innerWidth < 768);
+    };
+
+    checkMobile();
+    window.addEventListener("resize", checkMobile);
+
+    return () => window.removeEventListener("resize", checkMobile);
+  }, []);
 
   // Дані для слайдів з локалізацією
   const slides = [
@@ -71,16 +84,19 @@ export default function SliderContainer({
     },
   ];
 
+  // Максимальні слайди для мобільної версії (показуємо по 2)
+  const maxSlides = isMobile ? Math.ceil(slides.length / 2) : slides.length;
+
   // Автоматичне прокручування
   useEffect(() => {
     let interval: NodeJS.Timeout;
     if (isAutoPlaying) {
       interval = setInterval(() => {
-        setCurrentSlide((prev) => (prev + 1) % slides.length);
+        setCurrentSlide((prev) => (prev + 1) % maxSlides);
       }, 4000);
     }
     return () => clearInterval(interval);
-  }, [isAutoPlaying, slides.length]);
+  }, [isAutoPlaying, maxSlides]);
 
   // Сенсорне прокручування
   useEffect(() => {
@@ -127,18 +143,29 @@ export default function SliderContainer({
   // Переходи до наступного/попереднього слайду
   const nextSlide = () => {
     setIsAutoPlaying(false);
-    setCurrentSlide((prev) => (prev + 1) % slides.length);
+    setCurrentSlide((prev) => (prev + 1) % maxSlides);
   };
 
   const prevSlide = () => {
     setIsAutoPlaying(false);
-    setCurrentSlide((prev) => (prev - 1 + slides.length) % slides.length);
+    setCurrentSlide((prev) => (prev - 1 + maxSlides) % maxSlides);
   };
 
   // Обробка кліку на слайд
   const handleSlideClick = (index: number) => {
     setIsAutoPlaying(false);
     setCurrentSlide(index);
+  };
+
+  // Функція для отримання трансформації
+  const getTransform = () => {
+    if (isMobile) {
+      // На мобільних показуємо по 2 слайди, зсув на повну ширину контейнера
+      return `translateX(-${currentSlide * 106}%)`;
+    } else {
+      // На десктопі залишаємо оригінальну логіку
+      return `translateX(-${currentSlide * 280}px)`;
+    }
   };
 
   if (loading) {
@@ -160,7 +187,7 @@ export default function SliderContainer({
           {/* Кнопка "Назад" */}
           <button
             onClick={prevSlide}
-            className="absolute left-0 top-1/2 -translate-y-1/2 z-10 bg-orange-500 hover:bg-orange-600 text-white w-12 h-12 rounded-full flex items-center justify-center transition-colors duration-300 shadow-lg"
+            className="absolute top-1/2 -translate-y-1/2 z-10 bg-orange-500 hover:bg-orange-600 text-white w-12 h-12 rounded-full flex items-center justify-center transition-colors duration-300 shadow-lg md:left-0 -left-2"
           >
             <svg
               className="w-6 h-6"
@@ -178,31 +205,62 @@ export default function SliderContainer({
           </button>
 
           {/* Контейнер слайдів */}
-          <div ref={sliderRef} className="overflow-hidden mx-12">
+          <div ref={sliderRef} className="overflow-hidden md:mx-12 mx-6">
             <div
-              className="flex gap-6 transition-transform duration-500 ease-in-out"
+              className={`flex gap-6 transition-transform duration-500 ease-in-out ${
+                isMobile ? "md:flex-nowrap" : ""
+              }`}
               style={{
-                transform: `translateX(-${currentSlide * 280}px)`,
+                transform: getTransform(),
               }}
             >
-              {[...slides, ...slides].map((slide, index) => (
-                <SliderItem
-                  key={"id=" + slide.id + "," + index}
-                  destination={slide.destination}
-                  image={slide.image}
-                  isActive={slides.indexOf(slide) === currentSlide}
-                  onClick={() => {
-                    console.log(`Clicked on slide: ${slide.destination}`);
-                  }}
-                />
-              ))}
+              {isMobile
+                ? // Мобільна версія - групуємо по 2 слайди
+                  Array.from(
+                    { length: Math.ceil(slides.length / 2) },
+                    (_, groupIndex) => (
+                      <div
+                        key={groupIndex}
+                        className="flex gap-4 w-full flex-shrink-0"
+                      >
+                        {slides
+                          .slice(groupIndex * 2, groupIndex * 2 + 2)
+                          .map((slide) => (
+                            <div key={slide.id} className="w-1/2">
+                              <SliderItem
+                                destination={slide.destination}
+                                image={slide.image}
+                                isActive={false}
+                                onClick={() => {
+                                  console.log(
+                                    `Clicked on slide: ${slide.destination}`
+                                  );
+                                }}
+                              />
+                            </div>
+                          ))}
+                      </div>
+                    )
+                  )
+                : // Десктопна версія - оригінальна логіка
+                  [...slides, ...slides].map((slide, index) => (
+                    <SliderItem
+                      key={"id=" + slide.id + "," + index}
+                      destination={slide.destination}
+                      image={slide.image}
+                      isActive={slides.indexOf(slide) === currentSlide}
+                      onClick={() => {
+                        console.log(`Clicked on slide: ${slide.destination}`);
+                      }}
+                    />
+                  ))}
             </div>
           </div>
 
           {/* Кнопка "Вперед" */}
           <button
             onClick={nextSlide}
-            className="absolute right-0 top-1/2 -translate-y-1/2 z-10 bg-orange-500 hover:bg-orange-600 text-white w-12 h-12 rounded-full flex items-center justify-center transition-colors duration-300 shadow-lg"
+            className="absolute  top-1/2 -translate-y-1/2 z-10 bg-orange-500 hover:bg-orange-600 text-white w-12 h-12 rounded-full flex items-center justify-center transition-colors duration-300 shadow-lg md:right-0 -right-2"
           >
             <svg
               className="w-6 h-6"
@@ -222,7 +280,7 @@ export default function SliderContainer({
 
         {/* Індикатори */}
         <div className="flex justify-center mt-8 gap-2">
-          {slides.map((_, index) => (
+          {Array.from({ length: maxSlides }, (_, index) => (
             <button
               key={index}
               onClick={() => handleSlideClick(index)}
@@ -231,13 +289,6 @@ export default function SliderContainer({
               }`}
             />
           ))}
-        </div>
-
-        {/* Мобільна кнопка "Замовити дзвінок" */}
-        <div className="text-center mt-8 lg:hidden">
-          <button className="text-red-500 hover:text-red-700 font-medium border-b border-red-500 hover:border-red-700 transition-colors">
-            {dict?.header?.cta?.callBack || "Замовити дзвінок"}
-          </button>
         </div>
       </div>
     </section>

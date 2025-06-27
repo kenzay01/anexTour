@@ -52,7 +52,7 @@ export default function BenefitsContainer() {
               className="flex flex-col items-center gap-2 mb-8"
             >
               <benefit.img className="w-32 h-32" />
-              <p className="text-center">
+              <p className="text-center ">
                 {dict?.benefits?.[benefit.textKey] || benefit.textKey}
               </p>
             </div>

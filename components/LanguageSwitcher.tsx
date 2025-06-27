@@ -24,12 +24,12 @@ export default function LanguageSwitcher({
   };
 
   return (
-    <div className="flex items-center space-x-1 mb-1">
+    <div className="flex items-center md:space-x-1 mb-1">
       {locales.map((locale, index) => (
         <div key={locale} className="flex items-center">
           <Link
             href={getLocalizedPath(locale)}
-            className={`px-2 py-1 text-sm rounded transition-colors ${
+            className={`px-2 py-1 text-[12px] md:text-sm rounded transition-colors ${
               currentLocale === locale
                 ? "bg-blue-950 text-white"
                 : "text-gray-600 hover:text-blue-950 hover:bg-gray-200"

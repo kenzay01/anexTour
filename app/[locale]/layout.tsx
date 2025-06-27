@@ -2,6 +2,7 @@ import { Inter } from "next/font/google";
 import { locales } from "@/i18n/config";
 import { Metadata } from "next";
 import Header from "@/components/Header";
+import Footer from "@/components/Footer";
 import "../globals.css";
 const inter = Inter({ subsets: ["latin", "cyrillic"] });
 
@@ -28,7 +29,7 @@ export default async function RootLayout({
       <body className={inter.className}>
         <Header />
         <main>{children}</main>
-        {/* <ClientFooterWrapper /> */}
+        <Footer />
       </body>
     </html>
   );
