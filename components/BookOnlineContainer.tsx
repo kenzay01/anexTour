@@ -70,7 +70,7 @@ export default function BookOnlineContainer() {
                 {item.img}
               </div>
               <div className="text-6xl text-orange-400">{item.numbers}</div>
-              <div className="text-2x;">
+              <div className="text-2xl">
                 {dict?.bookOnline?.[item.textKey] || item.textKey}
               </div>
             </div>

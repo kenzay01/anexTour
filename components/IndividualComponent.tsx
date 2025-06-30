@@ -55,10 +55,12 @@ export default function IndividualComponent() {
       <div className="max-w-5xl mx-auto flex flex-col items-center gap-12">
         <div className="text-white">
           <h1 className="text-lg md:text-3xl text-center">
-            У Вас індивідуальні вимоги до відпочинку?
+            {dict?.individual?.title1 ||
+              "У Вас індивідуальні вимоги до відпочинку?"}
           </h1>
           <h1 className="text-lg md:text-3xl text-center">
-            Ми з радістю підберемо тур, який підійде саме Вам!
+            {dict?.individual?.title2 ||
+              "Ми з радістю підберемо тур, який підійде саме Вам!"}
           </h1>
         </div>
         <div className="flex-shrink-0">
