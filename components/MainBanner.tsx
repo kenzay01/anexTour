@@ -5,9 +5,10 @@ import { useCurrentLanguage } from "@/hooks/getCurrentLanguage";
 import { useDictionary } from "@/hooks/getDictionary";
 import { Locale } from "@/i18n/config";
 import homeBanner from "@/public/home_banner.jpg";
-
+import { useRouter } from "next/navigation";
 export default function MainBanner() {
   const currentLocale = useCurrentLanguage() as Locale;
+  const router = useRouter();
   const { dict, loading } = useDictionary(currentLocale);
   const [formData, setFormData] = useState({
     name: "",
@@ -141,8 +142,7 @@ export default function MainBanner() {
     if (newErrors.name || newErrors.phone) {
       return;
     }
-
-    console.log("Form submitted:", formData);
+    router.push(`/${currentLocale}/send-request`);
   };
 
   return (
