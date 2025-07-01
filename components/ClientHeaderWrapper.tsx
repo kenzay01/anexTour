@@ -8,5 +8,5 @@ export default function ClientHeaderWrapper() {
 
   const currentLanguage = useCurrentLanguage();
   // console.log(pathname);
-  return pathname !== `/${currentLanguage}/adminBoard` ? <Header /> : null;
+  return pathname !== `/${currentLanguage}/send-request` ? <Header /> : null;
 }

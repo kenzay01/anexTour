@@ -1,7 +1,8 @@
 import { Inter } from "next/font/google";
 import { locales } from "@/i18n/config";
 import { Metadata } from "next";
-import Header from "@/components/Header";
+// import Header from "@/components/Header";
+import ClientHeaderWrapper from "@/components/ClientHeaderWrapper";
 import Footer from "@/components/Footer";
 import "../globals.css";
 const inter = Inter({ subsets: ["latin", "cyrillic"] });
@@ -27,7 +28,7 @@ export default async function RootLayout({
   return (
     <html lang="uk">
       <body className={inter.className}>
-        <Header />
+        <ClientHeaderWrapper />
         <main>{children}</main>
         <Footer />
       </body>

@@ -5,6 +5,7 @@ import { useCurrentLanguage } from "@/hooks/getCurrentLanguage";
 import { useDictionary } from "@/hooks/getDictionary";
 import { Locale } from "@/i18n/config";
 import { X } from "lucide-react";
+import { useRouter } from "next/navigation";
 
 export default function Modal({
   isOpen,
@@ -18,6 +19,7 @@ export default function Modal({
   const currentLocale = useCurrentLanguage() as Locale;
   const { dict } = useDictionary(currentLocale);
 
+  const router = useRouter();
   const [formData, setFormData] = useState({
     name: "",
     phone: "",
@@ -77,6 +79,7 @@ export default function Modal({
     }
     setFormData({ name: "", phone: "" });
     setErrors({ name: "", phone: "" });
+    router.push(`/${currentLocale}/send-request`);
   };
 
   const handleInputChange = (field: "name" | "phone", value: string) => {

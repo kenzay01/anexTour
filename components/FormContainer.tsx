@@ -7,6 +7,7 @@ import { Locale } from "@/i18n/config";
 import formImage from "@/public/form_img.jpg"; // Зображення літака
 import formImage2 from "@/public/form_img_2.png"; // Додаткове зображення літака
 import arrowImage from "@/public/arrow.png"; // Зображення стрілки
+import { useRouter } from "next/navigation";
 
 const countries = [
   { uk: "Австрія", ru: "Австрия" },
@@ -109,6 +110,7 @@ interface FormContainerProps {
 }
 
 export default function FormContainer({ type }: FormContainerProps) {
+  const router = useRouter();
   const currentLocale = useCurrentLanguage() as Locale;
   const { dict, loading } = useDictionary(currentLocale);
   const [formData, setFormData] = useState({
@@ -184,6 +186,7 @@ export default function FormContainer({ type }: FormContainerProps) {
       destination: "",
       wishes: "",
     });
+    router.push(`/${currentLocale}/send-request`);
   };
 
   return (
