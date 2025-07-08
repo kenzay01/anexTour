@@ -5,7 +5,8 @@ import { useCurrentLanguage } from "@/hooks/getCurrentLanguage";
 import { useDictionary } from "@/hooks/getDictionary";
 import { Locale } from "@/i18n/config";
 import { X } from "lucide-react";
-import { useRouter } from "next/navigation";
+// import { useRouter } from "next/navigation";
+import { sendToBitrix24 } from "@/utils/sendToBitrix";
 
 export default function Modal({
   isOpen,
@@ -19,7 +20,8 @@ export default function Modal({
   const currentLocale = useCurrentLanguage() as Locale;
   const { dict } = useDictionary(currentLocale);
 
-  const router = useRouter();
+  // const router = useRouter();
+  // const [isSubmitting, setIsSubmitting] = useState(false);
   const [formData, setFormData] = useState({
     name: "",
     phone: "",
@@ -52,7 +54,9 @@ export default function Modal({
 
   if (!isOpen) return null;
 
-  const handleSubmit = () => {
+  // Зміни у Modal.tsx - тільки функція handleSubmit
+
+  const handleSubmit = async () => {
     const newErrors = {
       name: "",
       phone: "",
@@ -74,12 +78,50 @@ export default function Modal({
       return;
     }
 
-    if (onSubmit) {
-      onSubmit(formData);
+    // setIsSubmitting(true);
+
+    try {
+      // Використовуємо нову функцію для відправки у Bitrix24
+      const result = await sendToBitrix24({
+        name: formData.name,
+        phone: formData.phone,
+        email: "", // Порожнє поле email для модального вікна
+        destination: "", // Порожнє поле напрямок для модального вікна
+        wishes: "", // Порожнє поле побажання для модального вікна
+      });
+
+      if (result.success) {
+        // Успішна відправка
+        if (onSubmit) {
+          onSubmit(formData);
+        }
+
+        // Очищаємо форму
+        setFormData({ name: "", phone: "" });
+        setErrors({ name: "", phone: "" });
+
+        // Закриваємо модальне вікно
+        onClose();
+
+        // Показуємо повідомлення про успіх
+        alert(
+          "Дякуємо! Ваша заявка успішно відправлена. Наш менеджер зв'яжеться з вами найближчим часом."
+        );
+      } else {
+        // Помилка при відправці
+        console.error("Bitrix24 Error:", result.error);
+        alert(
+          "Виникла помилка при відправці заявки. Спробуйте ще раз або зв'яжіться з нами по телефону."
+        );
+      }
+    } catch (error) {
+      console.error("Помилка:", error);
+      alert(
+        "Виникла помилка при відправці заявки. Спробуйте ще раз або зв'яжіться з нами по телефону."
+      );
+    } finally {
+      // setIsSubmitting(false);
     }
-    setFormData({ name: "", phone: "" });
-    setErrors({ name: "", phone: "" });
-    router.push(`/${currentLocale}/send-request`);
   };
 
   const handleInputChange = (field: "name" | "phone", value: string) => {

@@ -7,7 +7,8 @@ import { Locale } from "@/i18n/config";
 import formImage from "@/public/form_img.jpg"; // Зображення літака
 import formImage2 from "@/public/form_img_2.png"; // Додаткове зображення літака
 import arrowImage from "@/public/arrow.png"; // Зображення стрілки
-import { useRouter } from "next/navigation";
+// import { useRouter } from "next/navigation";
+import { sendToBitrix24 } from "@/utils/sendToBitrix";
 
 const countries = [
   { uk: "Австрія", ru: "Австрия" },
@@ -110,7 +111,7 @@ interface FormContainerProps {
 }
 
 export default function FormContainer({ type }: FormContainerProps) {
-  const router = useRouter();
+  // const router = useRouter();
   const currentLocale = useCurrentLanguage() as Locale;
   const { dict, loading } = useDictionary(currentLocale);
   const [formData, setFormData] = useState({
@@ -148,7 +149,7 @@ export default function FormContainer({ type }: FormContainerProps) {
     }
   };
 
-  const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
+  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
 
     const newErrors = {
@@ -177,16 +178,47 @@ export default function FormContainer({ type }: FormContainerProps) {
       return;
     }
 
-    console.log("Form submitted:", formData);
-    alert("Заявка відправлена! Перевірте консоль для деталей.");
-    setFormData({
-      name: "",
-      phone: "",
-      email: "",
-      destination: "",
-      wishes: "",
-    });
-    router.push(`/${currentLocale}/send-request`);
+    try {
+      // Відправляємо дані у Bitrix24
+      const result = await sendToBitrix24({
+        name: formData.name,
+        phone: formData.phone,
+        email: formData.email,
+        destination: formData.destination,
+        wishes: formData.wishes || "",
+      });
+
+      if (result.success) {
+        // Успішна відправка
+        alert(
+          "Дякуємо! Ваша заявка успішно відправлена. Наш менеджер зв'яжеться з вами найближчим часом."
+        );
+
+        // Очищаємо форму
+        setFormData({
+          name: "",
+          phone: "",
+          email: "",
+          destination: "",
+          wishes: "",
+        });
+        setErrors({ name: "", phone: "", email: "" });
+
+        // Можна додати редирект
+        // router.push(`/${currentLocale}/send-request`);
+      } else {
+        // Помилка при відправці
+        console.error("Bitrix24 Error:", result.error);
+        alert(
+          "Виникла помилка при відправці заявки. Спробуйте ще раз або зв'яжіться з нами по телефону."
+        );
+      }
+    } catch (error) {
+      console.error("Помилка:", error);
+      alert(
+        "Виникла помилка при відправці заявки. Спробуйте ще раз або зв'яжіться з нами по телефону."
+      );
+    }
   };
 
   return (

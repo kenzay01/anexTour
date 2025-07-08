@@ -5,10 +5,11 @@ import { useCurrentLanguage } from "@/hooks/getCurrentLanguage";
 import { useDictionary } from "@/hooks/getDictionary";
 import { Locale } from "@/i18n/config";
 import homeBanner from "@/public/home_banner.jpg";
-import { useRouter } from "next/navigation";
+// import { useRouter } from "next/navigation";
+import { sendToBitrix24 } from "@/utils/sendToBitrix";
 export default function MainBanner() {
   const currentLocale = useCurrentLanguage() as Locale;
-  const router = useRouter();
+  // const router = useRouter();
   const { dict, loading } = useDictionary(currentLocale);
   const [formData, setFormData] = useState({
     name: "",
@@ -119,7 +120,7 @@ export default function MainBanner() {
     }
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
     const newErrors = {
@@ -142,7 +143,42 @@ export default function MainBanner() {
     if (newErrors.name || newErrors.phone) {
       return;
     }
-    router.push(`/${currentLocale}/send-request`);
+
+    try {
+      // Відправляємо дані у Bitrix24
+      const result = await sendToBitrix24({
+        name: formData.name,
+        phone: formData.phone,
+        email: "", // Порожнє поле email для головної форми
+        destination: "", // Порожнє поле напрямок
+        wishes: formData.wishes || "", // Побажання з форми
+      });
+
+      if (result.success) {
+        // Успішна відправка
+        alert(
+          "Дякуємо! Ваша заявка успішно відправлена. Наш менеджер зв'яжеться з вами найближчим часом."
+        );
+
+        // Очищаємо форму
+        setFormData({ name: "", phone: "", wishes: "" });
+        setErrors({ name: "", phone: "" });
+
+        // Можна додати редирект
+        // router.push(`/${currentLocale}/send-request`);
+      } else {
+        // Помилка при відправці
+        console.error("Bitrix24 Error:", result.error);
+        alert(
+          "Виникла помилка при відправці заявки. Спробуйте ще раз або зв'яжіться з нами по телефону."
+        );
+      }
+    } catch (error) {
+      console.error("Помилка:", error);
+      alert(
+        "Виникла помилка при відправці заявки. Спробуйте ще раз або зв'яжіться з нами по телефону."
+      );
+    }
   };
 
   return (
