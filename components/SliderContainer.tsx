@@ -12,6 +12,7 @@ import oaeImg from "@/public/countries/oae.jpg";
 import oae2Img from "@/public/countries/oae2.jpg";
 import tanzaniaImg from "@/public/countries/tanzania.jpg";
 import turkeyImg from "@/public/countries/turkey.jpg";
+import Modal from "./Modal";
 
 export default function SliderContainer({
   title,
@@ -23,6 +24,7 @@ export default function SliderContainer({
   const [currentSlide, setCurrentSlide] = useState(0);
   const [isAutoPlaying, setIsAutoPlaying] = useState(true);
   const [isMobile, setIsMobile] = useState(false);
+  const [isModalOpen, setIsModalOpen] = useState(false);
   const sliderRef = useRef<HTMLDivElement>(null);
 
   const currentLocale = useCurrentLanguage() as Locale;
@@ -161,7 +163,7 @@ export default function SliderContainer({
   const getTransform = () => {
     if (isMobile) {
       // На мобільних показуємо по 2 слайди, зсув на повну ширину контейнера
-      return `translateX(-${currentSlide * 106}%)`;
+      return `translateX(-${currentSlide * 108}%)`;
     } else {
       // На десктопі залишаємо оригінальну логіку
       return `translateX(-${currentSlide * 280}px)`;
@@ -173,124 +175,126 @@ export default function SliderContainer({
   }
 
   return (
-    <section className={`py-8 bg-gray-50 ${styles}`}>
-      <div className="max-w-8xl mx-auto px-4">
-        {/* Заголовок */}
-        <div className="text-center mb-12 relative">
-          <h2 className="text-4xl md:text-5xl font-semibold text-blue-900 mb-4">
-            {title}
-          </h2>
-        </div>
-
-        {/* Слайдер */}
-        <div className="relative">
-          {/* Кнопка "Назад" */}
-          <button
-            onClick={prevSlide}
-            className="absolute top-1/2 -translate-y-1/2 z-10 bg-orange-500 hover:bg-orange-600 text-white w-12 h-12 rounded-full flex items-center justify-center transition-colors duration-300 shadow-lg md:left-0 -left-2"
-          >
-            <svg
-              className="w-6 h-6"
-              fill="none"
-              stroke="currentColor"
-              viewBox="0 0 24 24"
-            >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                strokeWidth={2}
-                d="M15 19l-7-7 7-7"
-              />
-            </svg>
-          </button>
-
-          {/* Контейнер слайдів */}
-          <div ref={sliderRef} className="overflow-hidden md:mx-12 mx-6">
-            <div
-              className={`flex gap-6 transition-transform duration-500 ease-in-out ${
-                isMobile ? "md:flex-nowrap" : ""
-              }`}
-              style={{
-                transform: getTransform(),
-              }}
-            >
-              {isMobile
-                ? // Мобільна версія - групуємо по 2 слайди
-                  Array.from(
-                    { length: Math.ceil(slides.length / 2) },
-                    (_, groupIndex) => (
-                      <div
-                        key={groupIndex}
-                        className="flex gap-4 w-full flex-shrink-0"
-                      >
-                        {slides
-                          .slice(groupIndex * 2, groupIndex * 2 + 2)
-                          .map((slide) => (
-                            <div key={slide.id} className="w-1/2">
-                              <SliderItem
-                                destination={slide.destination}
-                                image={slide.image}
-                                isActive={false}
-                                onClick={() => {
-                                  console.log(
-                                    `Clicked on slide: ${slide.destination}`
-                                  );
-                                }}
-                              />
-                            </div>
-                          ))}
-                      </div>
-                    )
-                  )
-                : // Десктопна версія - оригінальна логіка
-                  [...slides, ...slides].map((slide, index) => (
-                    <SliderItem
-                      key={"id=" + slide.id + "," + index}
-                      destination={slide.destination}
-                      image={slide.image}
-                      isActive={slides.indexOf(slide) === currentSlide}
-                      onClick={() => {
-                        console.log(`Clicked on slide: ${slide.destination}`);
-                      }}
-                    />
-                  ))}
-            </div>
+    <>
+      <section className={`py-8 bg-gray-50 ${styles}`}>
+        <div className="max-w-8xl mx-auto px-4">
+          {/* Заголовок */}
+          <div className="text-center mb-12 relative">
+            <h2 className="text-4xl md:text-5xl font-semibold text-blue-900 mb-4">
+              {title}
+            </h2>
           </div>
 
-          {/* Кнопка "Вперед" */}
-          <button
-            onClick={nextSlide}
-            className="absolute  top-1/2 -translate-y-1/2 z-10 bg-orange-500 hover:bg-orange-600 text-white w-12 h-12 rounded-full flex items-center justify-center transition-colors duration-300 shadow-lg md:right-0 -right-2"
-          >
-            <svg
-              className="w-6 h-6"
-              fill="none"
-              stroke="currentColor"
-              viewBox="0 0 24 24"
-            >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                strokeWidth={2}
-                d="M9 5l7 7-7 7"
-              />
-            </svg>
-          </button>
-        </div>
-
-        {/* Індикатори */}
-        <div className="flex justify-center mt-8 gap-2">
-          {Array.from({ length: maxSlides }, (_, index) => (
+          {/* Слайдер */}
+          <div className="relative">
+            {/* Кнопка "Назад" */}
             <button
-              key={index}
-              onClick={() => handleSlideClick(index)}
-              className={`w-3 h-3 rounded-full transition-colors duration-300 ${
-                index === currentSlide ? "bg-orange-500" : "bg-gray-300"
-              }`}
-            />
-          ))}
+              onClick={prevSlide}
+              className="absolute top-1/2 -translate-y-1/2 z-10 bg-orange-500 hover:bg-orange-600 text-white w-12 h-12 rounded-full flex items-center justify-center transition-colors duration-300 shadow-lg md:left-0 -left-2"
+            >
+              <svg
+                className="w-6 h-6"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={2}
+                  d="M15 19l-7-7 7-7"
+                />
+              </svg>
+            </button>
+
+            {/* Контейнер слайдів */}
+            <div ref={sliderRef} className="overflow-hidden md:mx-12 mx-6">
+              <div
+                className={`flex gap-6 transition-transform duration-500 ease-in-out ${
+                  isMobile ? "md:flex-nowrap" : ""
+                }`}
+                style={{
+                  transform: getTransform(),
+                }}
+              >
+                {isMobile
+                  ? // Мобільна версія - групуємо по 2 слайди
+                    Array.from(
+                      { length: Math.ceil(slides.length / 2) },
+                      (_, groupIndex) => (
+                        <div
+                          key={groupIndex}
+                          className="flex gap-4 w-full flex-shrink-0"
+                        >
+                          {slides
+                            .slice(groupIndex * 2, groupIndex * 2 + 2)
+                            .map((slide) => (
+                              <div key={slide.id} className="w-1/2">
+                                <SliderItem
+                                  destination={slide.destination}
+                                  image={slide.image}
+                                  isActive={false}
+                                  onClick={() => {
+                                    setIsModalOpen(true);
+                                  }}
+                                />
+                              </div>
+                            ))}
+                        </div>
+                      )
+                    )
+                  : // Десктопна версія - оригінальна логіка
+                    [...slides, ...slides].map((slide, index) => (
+                      <SliderItem
+                        key={"id=" + slide.id + "," + index}
+                        destination={slide.destination}
+                        image={slide.image}
+                        isActive={slides.indexOf(slide) === currentSlide}
+                        onClick={() => {
+                          setIsModalOpen(true);
+                        }}
+                      />
+                    ))}
+              </div>
+            </div>
+
+            {/* Кнопка "Вперед" */}
+            <button
+              onClick={nextSlide}
+              className="absolute  top-1/2 -translate-y-1/2 z-10 bg-orange-500 hover:bg-orange-600 text-white w-12 h-12 rounded-full flex items-center justify-center transition-colors duration-300 shadow-lg md:right-0 -right-2"
+            >
+              <svg
+                className="w-6 h-6"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={2}
+                  d="M9 5l7 7-7 7"
+                />
+              </svg>
+            </button>
+          </div>
+
+          {/* Індикатори */}
+          <div className="flex justify-center mt-8 gap-2">
+            {Array.from({ length: maxSlides }, (_, index) => (
+              <button
+                key={index}
+                onClick={() => handleSlideClick(index)}
+                className={`w-3 h-3 rounded-full transition-colors duration-300 ${
+                  index === currentSlide ? "bg-orange-500" : "bg-gray-300"
+                }`}
+              />
+            ))}
+          </div>
         </div>
-      </div>
-    </section>
+      </section>
+      {/* Модальне вікно */}
+      <Modal isOpen={isModalOpen} onClose={() => setIsModalOpen(false)} />
+    </>
   );
 }
