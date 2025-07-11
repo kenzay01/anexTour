@@ -17,6 +17,7 @@ import MapContainer from "@/components/MapContainer";
 import logoImg from "@/public/logotip.png";
 import Image from "next/image";
 import RightSideButtons from "@/components/RightSideButtons";
+import TelegramPopup from "@/components/TelegramPopup";
 export default function HomePage() {
   const currentLocale = useCurrentLanguage() as Locale;
   const { dict } = useDictionary(currentLocale);
@@ -44,6 +45,7 @@ export default function HomePage() {
         <Image src={logoImg} alt="ANEX Tour Logo" width={220} height={120} />
       </div>
       <RightSideButtons />
+      <TelegramPopup />
     </div>
   );
 }

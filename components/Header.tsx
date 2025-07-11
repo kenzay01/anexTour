@@ -106,7 +106,7 @@ export default function Header() {
                     <MapPin className="w-4 h-4" />
                     <div className="text-sm ">{dict.header.location}</div>
                   </div>
-                  <div className="text-[12px] flex-1 text-blue-950">
+                  <div className="text-[12px] flex-1 text-blue-950 lowercase">
                     {dict.header.address}
                   </div>
                 </div>
