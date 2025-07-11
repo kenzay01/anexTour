@@ -51,7 +51,7 @@ export default function MapContainer() {
         <h2 className="text-3xl font-semibold mb-4">
           {dict?.mapContainer.title}
         </h2>
-        <p className="mb-2 lowercase">{dict?.header.address}</p>
+        <p className="mb-2">{dict?.header.address}</p>
         <button className="bg-transparent text-yellow-400 text-lg border-b-2 border-dashed">
           {dict?.header.cta.callBack}
         </button>
