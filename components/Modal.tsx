@@ -1,11 +1,9 @@
 "use client";
-
 import { useState, useEffect } from "react";
 import { useCurrentLanguage } from "@/hooks/getCurrentLanguage";
 import { useDictionary } from "@/hooks/getDictionary";
 import { Locale } from "@/i18n/config";
 import { X } from "lucide-react";
-// import { useRouter } from "next/navigation";
 import { sendToBitrix24 } from "@/utils/sendToBitrix";
 
 export default function Modal({
@@ -19,9 +17,6 @@ export default function Modal({
 }) {
   const currentLocale = useCurrentLanguage() as Locale;
   const { dict } = useDictionary(currentLocale);
-
-  // const router = useRouter();
-  // const [isSubmitting, setIsSubmitting] = useState(false);
   const [formData, setFormData] = useState({
     name: "",
     phone: "",
@@ -32,7 +27,8 @@ export default function Modal({
     phone: "",
   });
 
-  // Block scroll when modal is open
+  const [isSubmitting, setIsSubmitting] = useState(false);
+
   useEffect(() => {
     if (isOpen) {
       const scrollY = window.scrollY;
@@ -46,7 +42,6 @@ export default function Modal({
         document.body.style.top = "";
         document.body.style.width = "";
         document.body.style.overflow = "";
-
         window.scrollTo(0, scrollY);
       };
     }
@@ -54,7 +49,30 @@ export default function Modal({
 
   if (!isOpen) return null;
 
-  // Зміни у Modal.tsx - тільки функція handleSubmit
+  const handleInputChange = (field: "name" | "phone", value: string) => {
+    let newValue = value;
+
+    if (field === "phone" && value.trim() && !value.startsWith("+380")) {
+      // Якщо користувач вводить будь-яку цифру, автоматично додаємо "+380" на початок
+      if (/^\d/.test(value)) {
+        newValue = "+380" + value.replace(/^\d+/, "");
+      } else {
+        newValue = value.replace(/^\+?38?0?/, "+380");
+      }
+    }
+
+    setFormData((prev) => ({
+      ...prev,
+      [field]: newValue,
+    }));
+
+    if (field === "name" || field === "phone") {
+      setErrors((prev) => ({
+        ...prev,
+        [field]: "",
+      }));
+    }
+  };
 
   const handleSubmit = async () => {
     const newErrors = {
@@ -62,80 +80,76 @@ export default function Modal({
       phone: "",
     };
 
-    // Валідація
     if (formData.name.trim() === "") {
-      newErrors.name = "Поле Ваше ім'я є обов'язковим для заповнення.";
+      newErrors.name =
+        currentLocale === "ru"
+          ? "Поле Имя обязательно для заполнения."
+          : "Поле Ваше ім'я є обов'язковим для заповнення.";
     }
 
+    const phoneRegex = /^\+380\d{9}$/;
     if (formData.phone.trim() === "") {
-      newErrors.phone = "Поле Ваш телефон є обов'язковим для заповнення.";
+      newErrors.phone =
+        currentLocale === "ru"
+          ? "Поле Телефон обязательно для заполнения."
+          : "Поле Ваш телефон є обов'язковим для заповнення.";
+    } else if (!phoneRegex.test(formData.phone)) {
+      newErrors.phone =
+        currentLocale === "ru"
+          ? "Вы ввели некорректный номер."
+          : "Ви ввели некоректний номер.";
     }
 
     setErrors(newErrors);
 
-    // Якщо є помилки, не відправляємо форму
     if (newErrors.name || newErrors.phone) {
       return;
     }
 
-    // setIsSubmitting(true);
+    setIsSubmitting(true);
 
     try {
-      // Використовуємо нову функцію для відправки у Bitrix24
       const result = await sendToBitrix24({
         name: formData.name,
         phone: formData.phone,
-        email: "", // Порожнє поле email для модального вікна
-        destination: "", // Порожнє поле напрямок для модального вікна
-        wishes: "", // Порожнє поле побажання для модального вікна
+        email: "",
+        destination: "",
+        wishes:
+          currentLocale === "ru"
+            ? "Заказ звонка через модальное окно"
+            : "Замовлення дзвінка через модальне вікно",
       });
 
       if (result.success) {
-        // Успішна відправка
+        console.log("Форма успішно відправлена до Bitrix24");
         if (onSubmit) {
           onSubmit(formData);
         }
-
-        // Очищаємо форму
         setFormData({ name: "", phone: "" });
         setErrors({ name: "", phone: "" });
-
-        // Закриваємо модальне вікно
         onClose();
-
-        // Показуємо повідомлення про успіх
         alert(
-          "Дякуємо! Ваша заявка успішно відправлена. Наш менеджер зв'яжеться з вами найближчим часом."
+          currentLocale === "ru"
+            ? "Заявка успешно отправлена! Наш менеджер свяжется с вами в ближайшее время."
+            : "Заявка успішно відправлена! Наш менеджер зв'яжеться з вами найближчим часом."
         );
       } else {
-        // Помилка при відправці
-        console.error("Bitrix24 Error:", result.error);
+        console.error("Помилка при відправці до Bitrix24:", result.error);
         alert(
-          "Виникла помилка при відправці заявки. Спробуйте ще раз або зв'яжіться з нами по телефону."
+          currentLocale === "ru"
+            ? "Ошибка при отправке формы. Попробуйте еще раз."
+            : "Сталася помилка при відправці форми. Спробуйте ще раз."
         );
       }
     } catch (error) {
-      console.error("Помилка:", error);
+      console.error("Загальна помилка:", error);
       alert(
-        "Виникла помилка при відправці заявки. Спробуйте ще раз або зв'яжіться з нами по телефону."
+        currentLocale === "ru"
+          ? "Произошла ошибка при отправке формы. Попробуйте еще раз."
+          : "Сталася помилка при відправці форми. Спробуйте ще раз."
       );
     } finally {
-      // setIsSubmitting(false);
-    }
-  };
-
-  const handleInputChange = (field: "name" | "phone", value: string) => {
-    setFormData((prev) => ({
-      ...prev,
-      [field]: value,
-    }));
-
-    // Очищуємо помилку при введенні тексту
-    if (field === "name" || field === "phone") {
-      setErrors((prev) => ({
-        ...prev,
-        [field]: "",
-      }));
+      setIsSubmitting(false);
     }
   };
 
@@ -151,22 +165,18 @@ export default function Modal({
       onClick={handleOverlayClick}
     >
       <div className="bg-blue-900 rounded-lg p-8 max-w-md w-full mx-4 relative">
-        {/* Close button */}
         <button
           onClick={onClose}
           className="absolute top-2 right-2 md:top-4 md:right-4 text-white hover:text-gray-300 transition-colors p-1 bg-gray-400 rounded-full"
+          disabled={isSubmitting}
         >
           <X size={24} />
         </button>
-
-        {/* Header */}
         <div className="text-center mb-6">
           <h2 className="text-white text-2xl font-medium leading-tight">
             {dict?.modal.title || "Заповніть форму, щоб замовити дзвінок"}
           </h2>
         </div>
-
-        {/* Form */}
         <div className="space-y-4">
           <div>
             <input
@@ -175,12 +185,12 @@ export default function Modal({
               value={formData.name}
               onChange={(e) => handleInputChange("name", e.target.value)}
               className="w-full px-4 py-3 bg-white border-0 rounded text-gray-700 placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-white"
+              disabled={isSubmitting}
             />
             {errors.name && (
               <p className="text-red-600 text-sm mt-1">{errors.name}</p>
             )}
           </div>
-
           <div>
             <input
               type="tel"
@@ -188,17 +198,22 @@ export default function Modal({
               value={formData.phone}
               onChange={(e) => handleInputChange("phone", e.target.value)}
               className="w-full px-4 py-3 bg-white border-0 rounded text-gray-700 placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-white"
+              disabled={isSubmitting}
             />
             {errors.phone && (
               <p className="text-red-600 text-sm mt-1">{errors.phone}</p>
             )}
           </div>
-
           <button
             onClick={handleSubmit}
-            className="w-full bg-red-600 hover:bg-red-700 text-white font-medium py-3 px-6 rounded transition-colors mt-6"
+            disabled={isSubmitting}
+            className="w-full bg-red-600 hover:bg-red-700 text-white font-medium py-3 px-6 rounded transition-colors mt-6 disabled:opacity-50 disabled:cursor-not-allowed"
           >
-            {dict?.modal.submit || "Надіслати"}
+            {isSubmitting
+              ? currentLocale === "ru"
+                ? "Отправляем..."
+                : "Відправляємо..."
+              : dict?.modal.submit || "Надіслати"}
           </button>
         </div>
       </div>

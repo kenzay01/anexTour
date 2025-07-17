@@ -68,7 +68,14 @@ export default function TelegramPopup() {
             {dict?.telegramPopup?.title || "Давай до нас в Telegram!"}
           </h3>
           <p className="text-sm md:text-base text-gray-700 mb-4">
-            {dict?.telegramPopup?.description ||
+            {dict?.telegramPopup?.description
+              .split("<br/>")
+              .map((line, index) => (
+                <span key={index}>
+                  {line}
+                  <br />
+                </span>
+              )) ||
               "Гарячі тури, знижки та актуальні новини поринуться в нашій спільноті"}
           </p>
           <p className="text-sm md:text-base text-gray-500 gap-2 mb-2 flex items-center justify-center">

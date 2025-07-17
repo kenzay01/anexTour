@@ -4,16 +4,14 @@ import { useState, useEffect } from "react";
 import { useCurrentLanguage } from "@/hooks/getCurrentLanguage";
 import { useDictionary } from "@/hooks/getDictionary";
 import { Locale } from "@/i18n/config";
-import formImage from "@/public/form_img.jpg"; // Зображення літака
-import formImage2 from "@/public/form_img_2.png"; // Додаткове зображення літака
-import arrowImage from "@/public/arrow.png"; // Зображення стрілки
-// import { useRouter } from "next/navigation";
+import formImage from "@/public/form_img.jpg";
+import formImage2 from "@/public/form_img_2.png";
+import arrowImage from "@/public/arrow.png";
 import { sendToBitrix24 } from "@/utils/sendToBitrix";
 
 const countries = [
   { uk: "Австрія", ru: "Австрия" },
   { uk: "Андора", ru: "Андорра" },
-  // { uk: "Білорусь", ru: "Беларусь" },
   { uk: "Болгарія", ru: "Болгария" },
   { uk: "Угорщина", ru: "Венгрия" },
   { uk: "Греція", ru: "Греция" },
@@ -42,7 +40,6 @@ const countries = [
   { uk: "Естонія", ru: "Эстония" },
 ];
 
-// Окремий компонент для таймера зворотного відліку
 function CountdownTimer() {
   const [time, setTime] = useState({
     hours: 12,
@@ -51,26 +48,21 @@ function CountdownTimer() {
   });
 
   useEffect(() => {
-    // Перевіряємо чи є збережений час в localStorage
     const savedEndTime = localStorage.getItem("countdown-end-time");
     const now = Date.now();
-
     let endTime: number;
 
     if (savedEndTime) {
       endTime = parseInt(savedEndTime);
-      // Якщо час закінчився, створюємо новий таймер
       if (endTime <= now) {
-        endTime = now + 12 * 60 * 60 * 1000 + 59 * 60 * 1000 + 59 * 1000; // 12:59:59
+        endTime = now + 12 * 60 * 60 * 1000 + 59 * 60 * 1000 + 59 * 1000;
         localStorage.setItem("countdown-end-time", endTime.toString());
       }
     } else {
-      // Створюємо новий таймер на 12:59:59
       endTime = now + 12 * 60 * 60 * 1000 + 59 * 60 * 1000 + 59 * 1000;
       localStorage.setItem("countdown-end-time", endTime.toString());
     }
 
-    // Функція для оновлення таймера
     const updateTimer = () => {
       const currentTime = Date.now();
       const timeLeft = endTime - currentTime;
@@ -87,12 +79,8 @@ function CountdownTimer() {
       setTime({ hours, minutes, seconds });
     };
 
-    // Оновлюємо таймер одразу
     updateTimer();
-
-    // Встановлюємо інтервал
     const interval = setInterval(updateTimer, 1000);
-
     return () => clearInterval(interval);
   }, []);
 
@@ -111,7 +99,6 @@ interface FormContainerProps {
 }
 
 export default function FormContainer({ type }: FormContainerProps) {
-  // const router = useRouter();
   const currentLocale = useCurrentLanguage() as Locale;
   const { dict, loading } = useDictionary(currentLocale);
   const [formData, setFormData] = useState({
@@ -128,9 +115,7 @@ export default function FormContainer({ type }: FormContainerProps) {
     email: "",
   });
 
-  if (loading || !dict) {
-    return <div className="h-96 bg-gray-100"></div>;
-  }
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   const handleInputChange = (
     e: React.ChangeEvent<
@@ -138,9 +123,18 @@ export default function FormContainer({ type }: FormContainerProps) {
     >
   ) => {
     const { name, value } = e.target;
-    setFormData((prev) => ({ ...prev, [name]: value }));
+    let newValue = value;
 
-    // Очищуємо помилку при введенні тексту
+    if (name === "phone" && value.trim() && !value.startsWith("+380")) {
+      if (/^\d/.test(value)) {
+        newValue = "+380" + value.replace(/^\d+/, "");
+      } else {
+        newValue = value.replace(/^\+?38?0?/, "+380");
+      }
+    }
+
+    setFormData((prev) => ({ ...prev, [name]: newValue }));
+
     if (name === "name" || name === "phone" || name === "email") {
       setErrors((prev) => ({
         ...prev,
@@ -158,43 +152,51 @@ export default function FormContainer({ type }: FormContainerProps) {
       email: "",
     };
 
-    // Валідація
     if (formData.name.trim() === "") {
-      newErrors.name = "Поле Ваше ім'я є обов'язковим для заповнення.";
+      newErrors.name =
+        currentLocale === "ru"
+          ? "Поле Имя обязательно для заполнения."
+          : "Поле Ваше ім'я є обов'язковим для заповнення.";
     }
 
+    const phoneRegex = /^\+380\d{9}$/;
     if (formData.phone.trim() === "") {
-      newErrors.phone = "Поле Ваш телефон є обов'язковим для заповнення.";
+      newErrors.phone =
+        currentLocale === "ru"
+          ? "Поле Телефон обязательно для заполнения."
+          : "Поле Ваш телефон є обов'язковим для заповнення.";
+    } else if (!phoneRegex.test(formData.phone)) {
+      newErrors.phone =
+        currentLocale === "ru"
+          ? "Вы ввели некорректный номер."
+          : "Ви ввели некоректний номер.";
     }
 
     if (formData.email.trim() === "") {
-      newErrors.email = "Поле E-mail повинне містити текст.";
+      newErrors.email =
+        currentLocale === "ru"
+          ? "Поле E-mail обязательно для заполнения."
+          : "Поле E-mail є обов'язковим для заповнення.";
     }
 
     setErrors(newErrors);
 
-    // Якщо є помилки, не відправляємо форму
     if (newErrors.name || newErrors.phone || newErrors.email) {
       return;
     }
 
+    setIsSubmitting(true);
+
     try {
-      // Відправляємо дані у Bitrix24
-      const result = await sendToBitrix24({
-        name: formData.name,
-        phone: formData.phone,
-        email: formData.email,
-        destination: formData.destination,
-        wishes: formData.wishes || "",
-      });
+      const result = await sendToBitrix24(formData);
 
       if (result.success) {
-        // Успішна відправка
+        console.log("Form submitted successfully:", formData);
         alert(
-          "Дякуємо! Ваша заявка успішно відправлена. Наш менеджер зв'яжеться з вами найближчим часом."
+          currentLocale === "ru"
+            ? "Заявка успешно отправлена! Наш менеджер свяжется с вами в ближайшее время."
+            : "Заявка успішно відправлена! Наш менеджер зв'яжеться з вами найближчим часом."
         );
-
-        // Очищаємо форму
         setFormData({
           name: "",
           phone: "",
@@ -203,23 +205,29 @@ export default function FormContainer({ type }: FormContainerProps) {
           wishes: "",
         });
         setErrors({ name: "", phone: "", email: "" });
-
-        // Можна додати редирект
-        // router.push(`/${currentLocale}/send-request`);
       } else {
-        // Помилка при відправці
-        console.error("Bitrix24 Error:", result.error);
+        console.error("Помилка при відправці:", result.error);
         alert(
-          "Виникла помилка при відправці заявки. Спробуйте ще раз або зв'яжіться з нами по телефону."
+          currentLocale === "ru"
+            ? "Ошибка при отправке заявки. Попробуйте еще раз."
+            : "Сталася помилка при відправці заявки. Спробуйте ще раз."
         );
       }
     } catch (error) {
-      console.error("Помилка:", error);
+      console.error("Непередбачена помилка:", error);
       alert(
-        "Виникла помилка при відправці заявки. Спробуйте ще раз або зв'яжіться з нами по телефону."
+        currentLocale === "ru"
+          ? "Произошла непредвиденная ошибка. Попробуйте еще раз."
+          : "Сталася непередбачена помилка. Спробуйте ще раз."
       );
+    } finally {
+      setIsSubmitting(false);
     }
   };
+
+  if (loading || !dict) {
+    return <div className="h-96 bg-gray-100"></div>;
+  }
 
   return (
     <section
@@ -229,18 +237,20 @@ export default function FormContainer({ type }: FormContainerProps) {
       <div className="bg-white py-8">
         <div className="max-w-5xl mx-auto px-4">
           <div className="flex flex-col gap-2 md:gap-8 relative">
-            {/* Зображення літака */}
             <div className="hidden md:block flex-shrink-0 absolute left-0 bottom-0">
               <div className="w-80 h-46 md:w-110 md:h-64 bg-transparent rounded-lg overflow-hidden relative">
                 <Image
                   src={type === 1 ? formImage : formImage2}
-                  alt={"Пасажир в літаку"}
+                  alt={
+                    currentLocale === "ru"
+                      ? "Пассажир в самолете"
+                      : "Пасажир в літаку"
+                  }
                   layout="fill"
                   className="w-full h-full object-cover"
                 />
               </div>
             </div>
-            {/* Текст акції */}
             <div className="flex flex-wrap gap-4 justify-center items-center mb-4">
               <div className="relative">
                 <span className="bg-red-600 text-white px-4 md:px-2 py-1 font-bold animate-pulse text-5xl">
@@ -275,10 +285,10 @@ export default function FormContainer({ type }: FormContainerProps) {
                     {dict?.toy || "М'ЯКУ ІГРАШКУ"}
                   </span>
                   <br />
-                  {dict?.beforeFlight || "до вільоту."}
+                  {dict?.beforeFlight || "до вильоту."}
                   <Image
                     src={arrowImage}
-                    alt={"Стрілка"}
+                    alt={currentLocale === "ru" ? "Стрелка" : "Стрілка"}
                     className="absolute -bottom-60 right-0 transform -translate-x-1/2 hidden md:block"
                     width={45}
                     height={45}
@@ -286,44 +296,54 @@ export default function FormContainer({ type }: FormContainerProps) {
                 </div>
               ) : (
                 <div className="text-5xl text-gray-800 mb-4 font-sans relative">
-                  Залиште заявку ЗАРАЗ, і
+                  {currentLocale === "ru"
+                    ? "Оставьте заявку СЕЙЧАС, и"
+                    : "Залиште заявку ЗАРАЗ, та"}{" "}
                   <br />
-                  отримайте актуальні
+                  {currentLocale === "ru"
+                    ? "получите актуальные"
+                    : "отримайте актуальні"}{" "}
                   <br />
-                  гарячі тури
+                  {currentLocale === "ru" ? "горящие туры" : "гарячі тури"}{" "}
                   <br />
-                  від{" "}
-                  <span className="text-blue-900 ">Туристичної агенції</span>
+                  {currentLocale === "ru" ? "от" : "від"}{" "}
+                  <span className="text-blue-900 ">
+                    {currentLocale === "ru"
+                      ? "Туристического агентства"
+                      : "Туристичної агенції"}
+                  </span>
                   <br />
                   <span className="text-blue-900 ">ANEX Tour</span>
                   <Image
                     src={arrowImage}
-                    alt={"Стрілка"}
+                    alt={currentLocale === "ru" ? "Стрелка" : "Стрілка"}
                     className="absolute -bottom-60 right-0 transform -translate-x-1/2 hidden md:block"
                     width={45}
                     height={45}
                   />
                 </div>
               )}
-
-              <div className="flex md:hidden flex-shrink-0 mb-8  justify-center relative">
+              <div className="flex md:hidden flex-shrink-0 mb-8 justify-center relative">
                 <div className="w-80 h-46 bg-transparent rounded-lg overflow-hidden relative">
                   <Image
                     src={type === 1 ? formImage : formImage2}
-                    alt={"Пасажир в літаку"}
+                    alt={
+                      currentLocale === "ru"
+                        ? "Пассажир в самолете"
+                        : "Пасажир в літаку"
+                    }
                     layout="fill"
                     className="w-full h-full object-cover"
                   />
                 </div>
                 <Image
                   src={arrowImage}
-                  alt={"Стрілка"}
+                  alt={currentLocale === "ru" ? "Стрелка" : "Стрілка"}
                   className="absolute -bottom-40 right-1/50 transform -translate-x-1/2"
                   width={35}
                   height={35}
                 />
               </div>
-              {/* Таймер */}
               <div className="flex justify-center lg:justify-end md:mr-16">
                 <CountdownTimer />
               </div>
@@ -332,9 +352,7 @@ export default function FormContainer({ type }: FormContainerProps) {
         </div>
       </div>
 
-      {/* Нижня частина з формою */}
       <div className="bg-blue-900 py-8">
-        {/* Фон з літаками */}
         <div
           className="max-w-5xl mx-auto px-4"
           id={type === 1 ? "form" : undefined}
@@ -345,7 +363,6 @@ export default function FormContainer({ type }: FormContainerProps) {
               "та отримайте підбір індивідуального туру за 1 годину"}
           </h2>
 
-          {/* Форма */}
           <form
             onSubmit={handleSubmit}
             className="flex flex-wrap gap-2 justify-center items-end"
@@ -360,13 +377,12 @@ export default function FormContainer({ type }: FormContainerProps) {
                   dict?.banner?.form?.namePlaceholder || "Ваше ім'я*"
                 }
                 className="w-full px-4 py-3 bg-white border border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-400"
-                // required
+                disabled={isSubmitting}
               />
               {errors.name && (
                 <p className="text-red-600 text-xs mt-1">{errors.name}</p>
               )}
             </div>
-
             <div className="flex-1 min-w-[150px] md:min-w-[175px] max-w-[200px]">
               <input
                 type="tel"
@@ -377,13 +393,12 @@ export default function FormContainer({ type }: FormContainerProps) {
                   dict?.banner?.form?.phonePlaceholder || "Ваш телефон*"
                 }
                 className="w-full px-4 py-3 bg-white border border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-400"
-                // required
+                disabled={isSubmitting}
               />
               {errors.phone && (
                 <p className="text-red-600 text-xs mt-1">{errors.phone}</p>
               )}
             </div>
-
             <div className="flex-1 min-w-[150px] md:min-w-[175px] max-w-[200px]">
               <input
                 type="email"
@@ -394,25 +409,24 @@ export default function FormContainer({ type }: FormContainerProps) {
                   dict?.banner?.form?.emailPlaceholder || "Ваш E-mail*"
                 }
                 className="w-full px-4 py-3 bg-white border border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-400"
-                // required
+                disabled={isSubmitting}
               />
               {errors.email && (
                 <p className="text-red-600 text-xs mt-1">{errors.email}</p>
               )}
             </div>
-
             <div className="flex-1 min-w-[150px] md:min-w-[175px] max-w-[200px]">
               <select
                 name="destination"
                 value={formData.destination}
                 onChange={handleInputChange}
                 className="w-full px-4 py-3 border text-gray-500 border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-400 bg-white h-12.5"
+                disabled={isSubmitting}
               >
                 <option value="">
                   {dict?.banner?.form?.destinationPlaceholder ||
-                    (currentLocale === "uk" ? "Летимо до" : "Летим в")}
+                    (currentLocale === "ru" ? "Летим в" : "Летимо до")}
                 </option>
-
                 {countries.map((country) => (
                   <option key={country.uk} value={country[currentLocale]}>
                     {country[currentLocale]}
@@ -431,20 +445,24 @@ export default function FormContainer({ type }: FormContainerProps) {
                   }
                   rows={2}
                   className="w-full px-4 py-3 bg-white border border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-400 resize-none"
+                  disabled={isSubmitting}
                 ></textarea>
               </div>
             ) : null}
             <div className="flex-shrink-0">
               <button
                 type="submit"
-                className="bg-red-600 hover:bg-red-700 text-white font-bold px-8 py-3.5 transition-colors duration-300"
+                disabled={isSubmitting}
+                className="bg-red-600 hover:bg-red-700 text-white font-bold px-8 py-3.5 transition-colors duration-300 disabled:opacity-50 disabled:cursor-not-allowed"
               >
-                {dict?.banner?.form?.submitButton || "Підібрати тур"}
+                {isSubmitting
+                  ? currentLocale === "ru"
+                    ? "Отправляем..."
+                    : "Відправляємо..."
+                  : dict?.banner?.form?.submitButton || "Підібрати тур"}
               </button>
             </div>
           </form>
-
-          {/* Поле для побажань */}
           {type === 1 ? (
             <div className="mt-2 w-full mx-auto hidden md:block">
               <textarea
@@ -456,6 +474,7 @@ export default function FormContainer({ type }: FormContainerProps) {
                 }
                 rows={2}
                 className="w-full px-4 py-3 bg-white border border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-400 resize-none"
+                disabled={isSubmitting}
               ></textarea>
             </div>
           ) : null}
