@@ -18,6 +18,7 @@ import logoImg from "@/public/logotip.png";
 import Image from "next/image";
 import RightSideButtons from "@/components/RightSideButtons";
 import TelegramPopup from "@/components/TelegramPopup";
+import CallSection from "@/components/CallSection";
 export default function HomePage() {
   const currentLocale = useCurrentLanguage() as Locale;
   const { dict } = useDictionary(currentLocale);
@@ -40,6 +41,7 @@ export default function HomePage() {
       <PartnersContainer />
       <IndividualComponent />
       <CommentsContainer />
+      <CallSection />
       <MapContainer />
       <div className="flex justify-center items-center bg-white">
         <Image src={logoImg} alt="ANEX Tour Logo" width={220} height={120} />
