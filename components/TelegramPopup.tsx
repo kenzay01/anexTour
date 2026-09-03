@@ -3,7 +3,6 @@
 import { useState, useEffect } from "react";
 import { useCurrentLanguage } from "@/hooks/getCurrentLanguage";
 import { useDictionary } from "@/hooks/getDictionary";
-import trip_vibe from "@/public/trip_vibe.svg";
 import { Locale } from "@/i18n/config";
 
 export default function TelegramPopup() {
@@ -79,7 +78,7 @@ export default function TelegramPopup() {
               "Гарячі тури, знижки та актуальні новини поринуться в нашій спільноті"}
           </p>
           <p className="text-sm md:text-base text-gray-500 gap-2 mb-2 flex items-center justify-center">
-            <img src={trip_vibe.src} className="w-32 h-auto" alt="" />
+            <img src="/trip_vibe.svg" className="w-32 h-auto" alt="" />
             {dict?.telegramPopup?.crossedText || "телеграм"}
           </p>
           <a

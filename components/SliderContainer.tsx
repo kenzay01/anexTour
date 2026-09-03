@@ -4,14 +4,6 @@ import SliderItem from "./SliderItem";
 import { useCurrentLanguage } from "@/hooks/getCurrentLanguage";
 import { useDictionary } from "@/hooks/getDictionary";
 import { Locale } from "@/i18n/config";
-import indiaImg from "@/public/countries/india.jpg";
-import thailandImg from "@/public/countries/tailand.jpg";
-import thailand2Img from "@/public/countries/tailand2.jpg";
-import israelImg from "@/public/countries/israel.jpg";
-import oaeImg from "@/public/countries/oae.jpg";
-import oae2Img from "@/public/countries/oae2.jpg";
-import tanzaniaImg from "@/public/countries/tanzania.jpg";
-import turkeyImg from "@/public/countries/turkey.jpg";
 import Modal from "./Modal";
 
 export default function SliderContainer({
@@ -47,42 +39,42 @@ export default function SliderContainer({
     {
       id: 1,
       destination: dict?.slider?.destinations?.tanzania || "Танзанія",
-      image: tanzaniaImg,
+      image: "/countries/tanzania.jpg",
     },
     {
       id: 2,
       destination: dict?.slider?.destinations?.thailand || "Таїланд",
-      image: thailandImg,
+      image: "/countries/tailand.jpg",
     },
     {
       id: 3,
       destination: dict?.slider?.destinations?.israel || "Ізраїль",
-      image: israelImg,
+      image: "/countries/israel.jpg",
     },
     {
       id: 4,
       destination: dict?.slider?.destinations?.uae || "ОАЕ",
-      image: oaeImg,
+      image: "/countries/oae.jpg",
     },
     {
       id: 5,
       destination: dict?.slider?.destinations?.uae || "ОАЕ",
-      image: oae2Img,
+      image: "/countries/oae2.jpg",
     },
     {
       id: 6,
       destination: dict?.slider?.destinations?.india || "Індія",
-      image: indiaImg,
+      image: "/countries/india.jpg",
     },
     {
       id: 7,
       destination: dict?.slider?.destinations?.thailand || "Таїланд",
-      image: thailand2Img,
+      image: "/countries/tailand2.jpg",
     },
     {
       id: 8,
       destination: dict?.slider?.destinations?.turkey || "Туреччина",
-      image: turkeyImg,
+      image: "/countries/turkey.jpg",
     },
   ];
 

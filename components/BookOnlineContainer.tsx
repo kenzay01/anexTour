@@ -1,5 +1,3 @@
-import Image from "next/image";
-import bookOnline from "@/public/book.jpg";
 import { Earth } from "lucide-react";
 import { Hotel } from "lucide-react";
 import { FaMonument } from "react-icons/fa";
@@ -47,19 +45,17 @@ export default function BookOnlineContainer() {
   }[];
 
   return (
-    <section className="relative py-18 hidden md:block">
+    <section className="relative py-18 hidden md:block min-h-[500px]">
       <div className="absolute inset-0">
-        <Image
-          src={bookOnline}
+        <img
+          src="/book.jpg"
           alt="Book online"
-          fill
-          className="object-cover"
-          priority
+          className="absolute inset-0 w-full h-full object-cover"
         />
         <div className="absolute inset-0 bg-black/30"></div>
       </div>
 
-      <div className="z-10 flex flex-col items-center justify-center  text-white text-center relative">
+      <div className="relative z-10 flex flex-col items-center justify-center text-white text-center py-12">
         <h1 className="text-4xl mb-16">
           {dict?.bookOnline?.title || "З ким ми працюємо"}
         </h1>

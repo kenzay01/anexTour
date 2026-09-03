@@ -1,7 +1,5 @@
 "use client";
 
-import Image from "next/image";
-import leftImage from "@/public/map_img.jpg";
 import { GoogleMap, Marker, useJsApiLoader } from "@react-google-maps/api";
 import { useCallback } from "react";
 import { useCurrentLanguage } from "@/hooks/getCurrentLanguage";
@@ -37,12 +35,11 @@ export default function MapContainer() {
       id="destinations"
     >
       {/* Зображення - тільки на десктопі */}
-      <div className="md:flex-1 relative hidden md:block">
-        <Image
-          src={leftImage}
+      <div className="md:flex-1 relative hidden md:block h-[300px]">
+        <img
+          src="/map_img.jpg"
           alt="Anex Tour Office"
-          fill
-          className="object-cover"
+          className="absolute inset-0 w-full h-full object-cover"
         />
       </div>
 

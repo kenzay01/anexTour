@@ -1,9 +1,5 @@
 "use client";
-import Image from "next/image";
 import { useState, useCallback } from "react";
-import homeBanner from "@/public/home_banner.jpg";
-import logo from "@/public/logotip.png";
-import sign from "@/public/sign.png";
 import { GoogleMap, Marker, useJsApiLoader } from "@react-google-maps/api";
 import Link from "next/link";
 import { useCurrentLanguage } from "@/hooks/getCurrentLanguage";
@@ -56,23 +52,21 @@ export default function SendRequestPage() {
   return (
     <div className="flex flex-col relative">
       <div className="fixed hidden xl:flex left-10 top-10 bg-white rounded-full items-center justify-center h-32 w-32 z-20">
-        <Image src={sign} alt="Sign" className="object-contain w-full h-full" />
+        <img src="/sign.png" alt="Sign" className="object-contain w-full h-full" />
       </div>
       <section className="min-h-screen relative flex items-center justify-center text-white text-center px-4">
         <div className="absolute inset-0">
-          <Image
-            src={homeBanner}
+          <img
+            src="/home_banner.jpg"
             alt="Ancient ruins background"
-            fill
-            className="object-cover"
-            priority
+            className="absolute inset-0 w-full h-full object-cover"
           />
           <div className="absolute inset-0 bg-black/30" />
         </div>
 
         <div className="relative z-10 max-w-2xl w-full">
           <Link className="mb-4" href={`/${currentLocale}`}>
-            <Image src={logo} alt="Logo" width={160} className="mx-auto" />
+            <img src="/logotip.png" alt="Logo" className="mx-auto w-40 h-40 object-contain" />
           </Link>
 
           <h1 className="text-2xl md:text-4xl font-bold mb-2">
@@ -133,7 +127,7 @@ export default function SendRequestPage() {
       </div>
 
       <div className="flex justify-center items-center bg-white">
-        <Image src={logo} alt="ANEX Tour Logo" width={220} height={120} />
+        <img src="/logotip.png" alt="ANEX Tour Logo" className="w-[220px] h-[120px] object-contain" />
       </div>
     </div>
   );

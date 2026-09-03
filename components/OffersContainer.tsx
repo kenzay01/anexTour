@@ -1,9 +1,4 @@
 "use client";
-import beach from "@/public/offers/beach.jpg";
-import exсurse from "@/public/offers/excurse.jpg";
-import island from "@/public/offers/island.jpg";
-import skis from "@/public/offers/skis.jpg";
-import Image, { StaticImageData } from "next/image";
 import { useCurrentLanguage } from "@/hooks/getCurrentLanguage";
 import { useDictionary } from "@/hooks/getDictionary";
 import { Locale } from "@/i18n/config";
@@ -23,31 +18,31 @@ export default function OffersContainer() {
       id: 1,
       titleKey: "beach",
       descriptionKey: "beachDescription",
-      image: beach,
+      image: "/offers/beach.jpg",
     },
     {
       id: 2,
       titleKey: "excursion",
       descriptionKey: "excursionDescription",
-      image: exсurse,
+      image: "/offers/excurse.jpg",
     },
     {
       id: 3,
       titleKey: "skiResorts",
       descriptionKey: "skiResortsDescription",
-      image: skis,
+      image: "/offers/skis.jpg",
     },
     {
       id: 4,
       titleKey: "islands",
       descriptionKey: "islandsDescription",
-      image: island,
+      image: "/offers/island.jpg",
     },
   ] as {
     id: number;
     titleKey: OfferKey;
     descriptionKey: `${OfferKey}Description`;
-    image: StaticImageData;
+    image: string;
   }[];
 
   return (
@@ -63,11 +58,11 @@ export default function OffersContainer() {
               key={offer.id}
               className="bg-white overflow-hidden shadow-2xl hover:shadow-3xl transform hover:scale-105 transition-all duration-300"
             >
-              <div className="relative">
-                <Image
+              <div className="relative h-56">
+                <img
                   src={offer.image}
                   alt={dict?.offers?.[offer.titleKey] || offer.titleKey}
-                  className="w-full h-56 object-cover"
+                  className="absolute inset-0 w-full h-full object-cover"
                 />
                 <div className="absolute inset-0 bg-gradient-to-t from-black/50 to-transparent"></div>
               </div>

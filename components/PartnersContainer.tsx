@@ -3,12 +3,6 @@ import { useCurrentLanguage } from "@/hooks/getCurrentLanguage";
 import { useDictionary } from "@/hooks/getDictionary";
 import { Locale } from "@/i18n/config";
 
-import partner1 from "@/public/partners/partner1.jpg";
-import partner2 from "@/public/partners/partner2.jpg";
-import partner3 from "@/public/partners/partner3.png";
-import partner4 from "@/public/partners/partner4.png";
-import partner5 from "@/public/partners/partner5.webp";
-import Image from "next/image";
 
 export default function PartnersContainer() {
   const currentLocale = useCurrentLanguage() as Locale;
@@ -18,31 +12,31 @@ export default function PartnersContainer() {
     {
       id: 1,
       name: "Partner 1",
-      image: partner1,
+      image: "/partners/partner1.jpg",
       width: "w-26",
     },
     {
       id: 2,
       name: "Partner 2",
-      image: partner2,
+      image: "/partners/partner2.jpg",
       width: "w-26",
     },
     {
       id: 3,
       name: "Partner 3",
-      image: partner3,
+      image: "/partners/partner3.png",
       width: "w-12",
     },
     {
       id: 4,
       name: "Partner 4",
-      image: partner4,
+      image: "/partners/partner4.png",
       width: "w-23",
     },
     {
       id: 5,
       name: "Partner 5",
-      image: partner5,
+      image: "/partners/partner5.webp",
       width: "w-32",
     },
   ];
@@ -59,7 +53,7 @@ export default function PartnersContainer() {
               className="flex flex-col items-center gap-2 mb-8"
               key={partner.id}
             >
-              <Image
+              <img
                 src={partner.image}
                 alt={partner.name}
                 className={`h-auto ${partner.width}`}
@@ -77,7 +71,7 @@ export default function PartnersContainer() {
                 className="flex flex-col items-center gap-2"
                 key={partner.id}
               >
-                <Image
+                <img
                   src={partner.image}
                   alt={partner.name}
                   className={`h-auto ${partner.width}`}
@@ -89,7 +83,7 @@ export default function PartnersContainer() {
           {/* 5-й елемент окремо по центру */}
           <div className="flex justify-center">
             <div className="flex flex-col items-center gap-2 mb-8">
-              <Image
+              <img
                 src={partners[4].image}
                 alt={partners[4].name}
                 className={`h-auto ${partners[4].width}`}

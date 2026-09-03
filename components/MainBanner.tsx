@@ -1,10 +1,8 @@
 "use client";
-import Image from "next/image";
 import { useState, useEffect } from "react";
 import { useCurrentLanguage } from "@/hooks/getCurrentLanguage";
 import { useDictionary } from "@/hooks/getDictionary";
 import { Locale } from "@/i18n/config";
-import homeBanner from "@/public/home_banner.jpg";
 import { sendToBitrix24 } from "@/utils/sendToBitrix";
 
 export default function MainBanner() {
@@ -204,12 +202,10 @@ export default function MainBanner() {
   return (
     <div className="relative min-h-screen">
       <div className="absolute inset-0">
-        <Image
-          src={homeBanner}
+        <img
+          src="/home_banner.jpg"
           alt="Ancient ruins background"
-          fill
-          className="object-cover"
-          priority
+          className="absolute inset-0 w-full h-full object-cover"
         />
         <div className="absolute inset-0 bg-black/20"></div>
       </div>

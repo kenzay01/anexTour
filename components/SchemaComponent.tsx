@@ -1,6 +1,4 @@
 "use client";
-import Image from "next/image";
-import schemaImgBg from "@/public/schema.jpg";
 import { Plane } from "lucide-react";
 import { useCurrentLanguage } from "@/hooks/getCurrentLanguage";
 import { useDictionary } from "@/hooks/getDictionary";
@@ -18,12 +16,10 @@ export default function SchemaComponent() {
     <section className="hidden md:block relative py-20 overflow-hidden">
       {/* Фонове зображення */}
       <div className="absolute inset-0">
-        <Image
-          src={schemaImgBg}
+        <img
+          src="/schema.jpg"
           alt={dict?.schema?.imageAlt || "Готель у вечірньому освітленні"}
-          fill
-          className="object-cover object-center"
-          priority
+          className="absolute inset-0 w-full h-full object-cover object-center"
         />
       </div>
 

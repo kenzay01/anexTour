@@ -14,8 +14,6 @@ import PartnersContainer from "@/components/PartnersContainer";
 import IndividualComponent from "@/components/IndividualComponent";
 import CommentsContainer from "@/components/CommentsContainer";
 import MapContainer from "@/components/MapContainer";
-import logoImg from "@/public/logotip.png";
-import Image from "next/image";
 import RightSideButtons from "@/components/RightSideButtons";
 import TelegramPopup from "@/components/TelegramPopup";
 import CallSection from "@/components/CallSection";
@@ -44,7 +42,7 @@ export default function HomePage() {
       <CallSection />
       <MapContainer />
       <div className="flex justify-center items-center bg-white">
-        <Image src={logoImg} alt="ANEX Tour Logo" width={220} height={120} />
+        <img src="/logotip.png" alt="ANEX Tour Logo" className="w-[220px] h-[120px] object-contain" />
       </div>
       <RightSideButtons />
       <TelegramPopup />

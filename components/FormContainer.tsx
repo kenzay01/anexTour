@@ -1,12 +1,8 @@
 "use client";
-import Image from "next/image";
 import { useState, useEffect } from "react";
 import { useCurrentLanguage } from "@/hooks/getCurrentLanguage";
 import { useDictionary } from "@/hooks/getDictionary";
 import { Locale } from "@/i18n/config";
-import formImage from "@/public/form_img.jpg";
-import formImage2 from "@/public/form_img_2.png";
-import arrowImage from "@/public/arrow.png";
 import { sendToBitrix24 } from "@/utils/sendToBitrix";
 
 const countries = [
@@ -239,15 +235,14 @@ export default function FormContainer({ type }: FormContainerProps) {
           <div className="flex flex-col gap-2 md:gap-8 relative">
             <div className="hidden md:block flex-shrink-0 absolute left-0 bottom-0">
               <div className="w-80 h-46 md:w-110 md:h-64 bg-transparent rounded-lg overflow-hidden relative">
-                <Image
-                  src={type === 1 ? formImage : formImage2}
+                <img
+                  src={type === 1 ? "/form_img.jpg" : "/form_img_2.png"}
                   alt={
                     currentLocale === "ru"
                       ? "Пассажир в самолете"
                       : "Пасажир в літаку"
                   }
-                  layout="fill"
-                  className="w-full h-full object-cover"
+                  className="absolute inset-0 w-full h-full object-cover"
                 />
               </div>
             </div>
@@ -286,12 +281,10 @@ export default function FormContainer({ type }: FormContainerProps) {
                   </span>
                   <br />
                   {dict?.beforeFlight || "до вильоту."}
-                  <Image
-                    src={arrowImage}
+                  <img
+                    src="/arrow.png"
                     alt={currentLocale === "ru" ? "Стрелка" : "Стрілка"}
-                    className="absolute -bottom-60 right-0 transform -translate-x-1/2 hidden md:block"
-                    width={45}
-                    height={45}
+                    className="absolute -bottom-60 right-0 transform -translate-x-1/2 hidden md:block w-[45px] h-[45px]"
                   />
                 </div>
               ) : (
@@ -314,34 +307,29 @@ export default function FormContainer({ type }: FormContainerProps) {
                   </span>
                   <br />
                   <span className="text-blue-900 ">ANEX Tour</span>
-                  <Image
-                    src={arrowImage}
+                  <img
+                    src="/arrow.png"
                     alt={currentLocale === "ru" ? "Стрелка" : "Стрілка"}
-                    className="absolute -bottom-60 right-0 transform -translate-x-1/2 hidden md:block"
-                    width={45}
-                    height={45}
+                    className="absolute -bottom-60 right-0 transform -translate-x-1/2 hidden md:block w-[45px] h-[45px]"
                   />
                 </div>
               )}
               <div className="flex md:hidden flex-shrink-0 mb-8 justify-center relative">
                 <div className="w-80 h-46 bg-transparent rounded-lg overflow-hidden relative">
-                  <Image
-                    src={type === 1 ? formImage : formImage2}
+                  <img
+                    src={type === 1 ? "/form_img.jpg" : "/form_img_2.png"}
                     alt={
                       currentLocale === "ru"
                         ? "Пассажир в самолете"
                         : "Пасажир в літаку"
                     }
-                    layout="fill"
-                    className="w-full h-full object-cover"
+                    className="absolute inset-0 w-full h-full object-cover"
                   />
                 </div>
-                <Image
-                  src={arrowImage}
+                <img
+                  src="/arrow.png"
                   alt={currentLocale === "ru" ? "Стрелка" : "Стрілка"}
-                  className="absolute -bottom-40 right-1/50 transform -translate-x-1/2"
-                  width={35}
-                  height={35}
+                  className="absolute -bottom-40 right-1/50 transform -translate-x-1/2 w-[35px] h-[35px]"
                 />
               </div>
               <div className="flex justify-center lg:justify-end md:mr-16">

@@ -1,5 +1,3 @@
-import { StaticImageData } from "next/image";
-import Image from "next/image";
 import { useCurrentLanguage } from "@/hooks/getCurrentLanguage";
 import { useDictionary } from "@/hooks/getDictionary";
 import { Locale } from "@/i18n/config";
@@ -11,7 +9,7 @@ export default function SliderItem({
   onClick,
 }: {
   destination: string;
-  image: StaticImageData;
+  image: string | { src: string };
   isActive: boolean;
   onClick: () => void;
 }) {
@@ -25,11 +23,11 @@ export default function SliderItem({
       }`}
       onClick={onClick}
     >
-      <div className="md:h-60 h-40 overflow-hidden">
-        <Image
-          src={image}
+      <div className="md:h-60 h-40 overflow-hidden relative">
+        <img
+          src={typeof image === "string" ? image : image.src}
           alt={destination}
-          className="w-full h-full object-cover transition-transform duration-500 hover:scale-110"
+          className="absolute inset-0 w-full h-full object-cover transition-transform duration-500 hover:scale-110"
         />
       </div>
       <div className="bg-slate-700 text-white md:p-6 p-4 text-center">

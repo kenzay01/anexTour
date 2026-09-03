@@ -1,10 +1,4 @@
 "use client";
-import commentImg1 from "@/public/comments/rev-img-1.jpg";
-import commentImg2 from "@/public/comments/rev-img-2.jpg";
-import commentImg3 from "@/public/comments/rev-img-3.jpg";
-import commentImg4 from "@/public/comments/rev-img-4.jpg";
-import commentImg5 from "@/public/comments/rev-img-5.jpg";
-import commentImg6 from "@/public/comments/rev-img-6.jpg";
 import { useCurrentLanguage } from "@/hooks/getCurrentLanguage";
 import { useDictionary } from "@/hooks/getDictionary";
 import { Locale } from "@/i18n/config";
@@ -23,7 +17,7 @@ export default function CommentsContainer() {
     {
       id: 1,
       name: dict?.comments?.comment1?.name || "Любченко Іван",
-      image: commentImg1,
+      image: "/comments/rev-img-1.jpg",
       comment:
         dict?.comments?.comment1?.text ||
         "Я об'їздив практично пів земної кулі...",
@@ -31,7 +25,7 @@ export default function CommentsContainer() {
     {
       id: 2,
       name: dict?.comments?.comment2?.name || "Конанов Артем",
-      image: commentImg2,
+      image: "/comments/rev-img-2.jpg",
       comment:
         dict?.comments?.comment2?.text ||
         "У минулому році брали тур в Аланію...",
@@ -39,14 +33,14 @@ export default function CommentsContainer() {
     {
       id: 3,
       name: dict?.comments?.comment3?.name || "Грицько Валерій",
-      image: commentImg3,
+      image: "/comments/rev-img-3.jpg",
       comment:
         dict?.comments?.comment3?.text || "У мене був досвід покупки туру...",
     },
     {
       id: 4,
       name: dict?.comments?.comment4?.name || "Панасова Наталя",
-      image: commentImg4,
+      image: "/comments/rev-img-4.jpg",
       comment:
         dict?.comments?.comment4?.text ||
         "Ми їздили з цим оператором в Австрію...",
@@ -54,14 +48,14 @@ export default function CommentsContainer() {
     {
       id: 5,
       name: dict?.comments?.comment5?.name || "Коваленко Анастасія",
-      image: commentImg5,
+      image: "/comments/rev-img-5.jpg",
       comment:
         dict?.comments?.comment5?.text || "Anex відмінний тур-оператор...",
     },
     {
       id: 6,
       name: dict?.comments?.comment6?.name || "Чорничний Олег",
-      image: commentImg6,
+      image: "/comments/rev-img-6.jpg",
       comment:
         dict?.comments?.comment6?.text ||
         "Ми замовляли свій тур до Тайланду...",

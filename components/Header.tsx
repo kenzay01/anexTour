@@ -6,9 +6,6 @@ import { useDictionary } from "@/hooks/getDictionary";
 import { Locale } from "@/i18n/config";
 import LanguageSwitcher from "@/components/LanguageSwitcher";
 import { MapPin } from "lucide-react";
-import Image from "next/image";
-import logo from "@/public/logotip.png"; // Adjust the path as necessary
-import sign from "@/public/sign.png"; // Adjust the path as necessary
 import Modal from "@/components/Modal";
 import { useState, useEffect } from "react";
 
@@ -76,8 +73,8 @@ export default function Header() {
       <header className="bg-white/90 shadow-sm sticky top-0 z-50 backdrop-blur-md">
         {/* Main header */}
         <div className="absolute hidden xl:flex left-10 top-1/2 transform -translate-y-1/2 items-center justify-center h-32 w-32">
-          <Image
-            src={sign}
+          <img
+            src="/sign.png"
             alt="Sign"
             className="object-contain w-full h-full"
           />
@@ -87,12 +84,10 @@ export default function Header() {
             <div className="flex items-center space-x-4 flex-2">
               <Link href={`/${currentLocale}`} className="flex flex-col">
                 <div className="flex items-center justify-center w-64 h-36">
-                  <Image
-                    src={logo}
+                  <img
+                    src="/logotip.png"
                     alt="Anex Tour Logo"
                     className="object-contain w-full h-full"
-                    //   width={150}
-                    //   height={150}
                   />
                 </div>
               </Link>
@@ -151,12 +146,10 @@ export default function Header() {
           <div className="flex items-center justify-between py-2">
             <Link href={`/${currentLocale}`} className="flex flex-col">
               <div className="flex items-center justify-center">
-                <Image
-                  src={logo}
+                <img
+                  src="/logotip.png"
                   alt="Anex Tour Logo"
                   className="object-contain w-full h-full"
-                  width={65}
-                  height={65}
                 />
               </div>
             </Link>

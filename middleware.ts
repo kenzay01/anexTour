@@ -4,6 +4,16 @@ import { defaultLocale, locales } from "./i18n/config";
 
 export function middleware(request: NextRequest) {
   const pathname = request.nextUrl.pathname;
+  
+  // Пропускаємо статичні файли з папки public
+  if (
+    pathname.startsWith('/_next') ||
+    pathname.startsWith('/api') ||
+    pathname.match(/\.(jpg|jpeg|png|gif|svg|webp|ico|json|pdf)$/i)
+  ) {
+    return NextResponse.next();
+  }
+
   // Отримуємо мову з cookies
   //   const savedLocale = request.cookies.get("preferredLocale")?.value;
 
@@ -24,5 +34,15 @@ export function middleware(request: NextRequest) {
 }
 
 export const config = {
-  matcher: ["/((?!api|_next/static|_next/image|favicon.ico).*)"],
+  matcher: [
+    /*
+     * Match all request paths except for the ones starting with:
+     * - api (API routes)
+     * - _next/static (static files)
+     * - _next/image (image optimization files)
+     * - favicon.ico (favicon file)
+     * - Static files are handled in the middleware function itself
+     */
+    "/((?!api|_next/static|_next/image|favicon.ico).*)",
+  ],
 };
