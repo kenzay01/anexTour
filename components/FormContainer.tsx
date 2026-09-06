@@ -4,6 +4,7 @@ import { useCurrentLanguage } from "@/hooks/getCurrentLanguage";
 import { useDictionary } from "@/hooks/getDictionary";
 import { Locale } from "@/i18n/config";
 import { sendToBitrix24 } from "@/utils/sendToBitrix";
+import StatusModal from "@/components/StatusModal";
 
 const countries = [
   { uk: "Австрія", ru: "Австрия" },
@@ -112,6 +113,10 @@ export default function FormContainer({ type }: FormContainerProps) {
   });
 
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [status, setStatus] = useState<{
+    open: boolean;
+    variant: "success" | "error";
+  }>({ open: false, variant: "success" });
 
   const handleInputChange = (
     e: React.ChangeEvent<
@@ -188,11 +193,6 @@ export default function FormContainer({ type }: FormContainerProps) {
 
       if (result.success) {
         console.log("Form submitted successfully:", formData);
-        alert(
-          currentLocale === "ru"
-            ? "Заявка успешно отправлена! Наш менеджер свяжется с вами в ближайшее время."
-            : "Заявка успішно відправлена! Наш менеджер зв'яжеться з вами найближчим часом."
-        );
         setFormData({
           name: "",
           phone: "",
@@ -201,21 +201,14 @@ export default function FormContainer({ type }: FormContainerProps) {
           wishes: "",
         });
         setErrors({ name: "", phone: "", email: "" });
+        setStatus({ open: true, variant: "success" });
       } else {
         console.error("Помилка при відправці:", result.error);
-        alert(
-          currentLocale === "ru"
-            ? "Ошибка при отправке заявки. Попробуйте еще раз."
-            : "Сталася помилка при відправці заявки. Спробуйте ще раз."
-        );
+        setStatus({ open: true, variant: "error" });
       }
     } catch (error) {
       console.error("Непередбачена помилка:", error);
-      alert(
-        currentLocale === "ru"
-          ? "Произошла непредвиденная ошибка. Попробуйте еще раз."
-          : "Сталася непередбачена помилка. Спробуйте ще раз."
-      );
+      setStatus({ open: true, variant: "error" });
     } finally {
       setIsSubmitting(false);
     }
@@ -226,6 +219,7 @@ export default function FormContainer({ type }: FormContainerProps) {
   }
 
   return (
+    <>
     <section
       className="flex flex-col relative"
       id={type === 1 ? "offers" : "hot-tours"}
@@ -469,5 +463,24 @@ export default function FormContainer({ type }: FormContainerProps) {
         </div>
       </div>
     </section>
+    <StatusModal
+      isOpen={status.open}
+      onClose={() => setStatus((prev) => ({ ...prev, open: false }))}
+      variant={status.variant}
+      title={
+        status.variant === "success"
+          ? dict?.modal?.successTitle || "Заявка успішно відправлена!"
+          : dict?.modal?.errorTitle || "Сталася помилка"
+      }
+      message={
+        status.variant === "success"
+          ? dict?.modal?.successMessage ||
+            "Наш менеджер зв'яжеться з вами найближчим часом."
+          : dict?.modal?.errorMessage ||
+            "Не вдалося відправити заявку. Спробуйте ще раз."
+      }
+      buttonText={dict?.modal?.ok || "OK"}
+    />
+    </>
   );
 }

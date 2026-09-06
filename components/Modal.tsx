@@ -5,6 +5,7 @@ import { useDictionary } from "@/hooks/getDictionary";
 import { Locale } from "@/i18n/config";
 import { X } from "lucide-react";
 import { sendToBitrix24 } from "@/utils/sendToBitrix";
+import StatusModal from "@/components/StatusModal";
 
 export default function Modal({
   isOpen,
@@ -28,6 +29,10 @@ export default function Modal({
   });
 
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [status, setStatus] = useState<{
+    open: boolean;
+    variant: "success" | "error";
+  }>({ open: false, variant: "success" });
 
   useEffect(() => {
     if (isOpen) {
@@ -47,13 +52,12 @@ export default function Modal({
     }
   }, [isOpen]);
 
-  if (!isOpen) return null;
+  if (!isOpen && !status.open) return null;
 
   const handleInputChange = (field: "name" | "phone", value: string) => {
     let newValue = value;
 
     if (field === "phone" && value.trim() && !value.startsWith("+380")) {
-      // Якщо користувач вводить будь-яку цифру, автоматично додаємо "+380" на початок
       if (/^\d/.test(value)) {
         newValue = "+380" + value.replace(/^\d+/, "");
       } else {
@@ -121,33 +125,20 @@ export default function Modal({
       });
 
       if (result.success) {
-        console.log("Форма успішно відправлена до Bitrix24");
         if (onSubmit) {
           onSubmit(formData);
         }
         setFormData({ name: "", phone: "" });
         setErrors({ name: "", phone: "" });
         onClose();
-        alert(
-          currentLocale === "ru"
-            ? "Заявка успешно отправлена! Наш менеджер свяжется с вами в ближайшее время."
-            : "Заявка успішно відправлена! Наш менеджер зв'яжеться з вами найближчим часом."
-        );
+        setStatus({ open: true, variant: "success" });
       } else {
         console.error("Помилка при відправці до Bitrix24:", result.error);
-        alert(
-          currentLocale === "ru"
-            ? "Ошибка при отправке формы. Попробуйте еще раз."
-            : "Сталася помилка при відправці форми. Спробуйте ще раз."
-        );
+        setStatus({ open: true, variant: "error" });
       }
     } catch (error) {
       console.error("Загальна помилка:", error);
-      alert(
-        currentLocale === "ru"
-          ? "Произошла ошибка при отправке формы. Попробуйте еще раз."
-          : "Сталася помилка при відправці форми. Спробуйте ще раз."
-      );
+      setStatus({ open: true, variant: "error" });
     } finally {
       setIsSubmitting(false);
     }
@@ -160,63 +151,88 @@ export default function Modal({
   };
 
   return (
-    <div
-      className="fixed inset-0 bg-black/50 flex items-center justify-center z-[100]"
-      onClick={handleOverlayClick}
-    >
-      <div className="bg-blue-900 rounded-lg p-8 max-w-md w-full mx-4 relative">
-        <button
-          onClick={onClose}
-          className="absolute top-2 right-2 md:top-4 md:right-4 text-white hover:text-gray-300 transition-colors p-1 bg-gray-400 rounded-full"
-          disabled={isSubmitting}
+    <>
+      {isOpen && (
+        <div
+          className="fixed inset-0 bg-black/50 flex items-center justify-center z-[100]"
+          onClick={handleOverlayClick}
         >
-          <X size={24} />
-        </button>
-        <div className="text-center mb-6">
-          <h2 className="text-white text-2xl font-medium leading-tight">
-            {dict?.modal.title || "Заповніть форму, щоб замовити дзвінок"}
-          </h2>
-        </div>
-        <div className="space-y-4">
-          <div>
-            <input
-              type="text"
-              placeholder={dict?.banner.form.namePlaceholder || "Ваше ім'я*"}
-              value={formData.name}
-              onChange={(e) => handleInputChange("name", e.target.value)}
-              className="w-full px-4 py-3 bg-white border-0 rounded text-gray-700 placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-white"
+          <div className="bg-blue-900 rounded-lg p-8 max-w-md w-full mx-4 relative">
+            <button
+              onClick={onClose}
+              className="absolute top-2 right-2 md:top-4 md:right-4 text-white hover:text-gray-300 transition-colors p-1 bg-gray-400 rounded-full"
               disabled={isSubmitting}
-            />
-            {errors.name && (
-              <p className="text-red-600 text-sm mt-1">{errors.name}</p>
-            )}
+            >
+              <X size={24} />
+            </button>
+            <div className="text-center mb-6">
+              <h2 className="text-white text-2xl font-medium leading-tight">
+                {dict?.modal.title || "Заповніть форму, щоб замовити дзвінок"}
+              </h2>
+            </div>
+            <div className="space-y-4">
+              <div>
+                <input
+                  type="text"
+                  placeholder={dict?.banner.form.namePlaceholder || "Ваше ім'я*"}
+                  value={formData.name}
+                  onChange={(e) => handleInputChange("name", e.target.value)}
+                  className="w-full px-4 py-3 bg-white border-0 rounded text-gray-700 placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-white"
+                  disabled={isSubmitting}
+                />
+                {errors.name && (
+                  <p className="text-red-600 text-sm mt-1">{errors.name}</p>
+                )}
+              </div>
+              <div>
+                <input
+                  type="tel"
+                  placeholder={
+                    dict?.banner.form.phonePlaceholder || "Ваш телефон*"
+                  }
+                  value={formData.phone}
+                  onChange={(e) => handleInputChange("phone", e.target.value)}
+                  className="w-full px-4 py-3 bg-white border-0 rounded text-gray-700 placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-white"
+                  disabled={isSubmitting}
+                />
+                {errors.phone && (
+                  <p className="text-red-600 text-sm mt-1">{errors.phone}</p>
+                )}
+              </div>
+              <button
+                onClick={handleSubmit}
+                disabled={isSubmitting}
+                className="w-full bg-red-600 hover:bg-red-700 text-white font-medium py-3 px-6 rounded transition-colors mt-6 disabled:opacity-50 disabled:cursor-not-allowed"
+              >
+                {isSubmitting
+                  ? currentLocale === "ru"
+                    ? "Отправляем..."
+                    : "Відправляємо..."
+                  : dict?.modal.submit || "Надіслати"}
+              </button>
+            </div>
           </div>
-          <div>
-            <input
-              type="tel"
-              placeholder={dict?.banner.form.phonePlaceholder || "Ваш телефон*"}
-              value={formData.phone}
-              onChange={(e) => handleInputChange("phone", e.target.value)}
-              className="w-full px-4 py-3 bg-white border-0 rounded text-gray-700 placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-white"
-              disabled={isSubmitting}
-            />
-            {errors.phone && (
-              <p className="text-red-600 text-sm mt-1">{errors.phone}</p>
-            )}
-          </div>
-          <button
-            onClick={handleSubmit}
-            disabled={isSubmitting}
-            className="w-full bg-red-600 hover:bg-red-700 text-white font-medium py-3 px-6 rounded transition-colors mt-6 disabled:opacity-50 disabled:cursor-not-allowed"
-          >
-            {isSubmitting
-              ? currentLocale === "ru"
-                ? "Отправляем..."
-                : "Відправляємо..."
-              : dict?.modal.submit || "Надіслати"}
-          </button>
         </div>
-      </div>
-    </div>
+      )}
+
+      <StatusModal
+        isOpen={status.open}
+        onClose={() => setStatus((prev) => ({ ...prev, open: false }))}
+        variant={status.variant}
+        title={
+          status.variant === "success"
+            ? dict?.modal.successTitle || "Заявка успішно відправлена!"
+            : dict?.modal.errorTitle || "Сталася помилка"
+        }
+        message={
+          status.variant === "success"
+            ? dict?.modal.successMessage ||
+              "Наш менеджер зв'яжеться з вами найближчим часом."
+            : dict?.modal.errorMessage ||
+              "Не вдалося відправити заявку. Спробуйте ще раз."
+        }
+        buttonText={dict?.modal.ok || "OK"}
+      />
+    </>
   );
 }

@@ -4,6 +4,7 @@ import { useCurrentLanguage } from "@/hooks/getCurrentLanguage";
 import { useDictionary } from "@/hooks/getDictionary";
 import { Locale } from "@/i18n/config";
 import { sendToBitrix24 } from "@/utils/sendToBitrix";
+import StatusModal from "@/components/StatusModal";
 
 export default function MainBanner() {
   const currentLocale = useCurrentLanguage() as Locale;
@@ -20,6 +21,10 @@ export default function MainBanner() {
   });
 
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [status, setStatus] = useState<{
+    open: boolean;
+    variant: "success" | "error";
+  }>({ open: false, variant: "success" });
 
   const [currentManagersIndex, setCurrentManagersIndex] = useState(0);
   const [currentMainTitleIndex, setCurrentMainTitleIndex] = useState(0);
@@ -136,26 +141,14 @@ export default function MainBanner() {
         console.log("Форма успішно відправлена до Bitrix24");
         setFormData({ name: "", phone: "", wishes: "" });
         setErrors({ name: "", phone: "" });
-        alert(
-          currentLocale === "ru"
-            ? "Заявка успешно отправлена! Наш менеджер свяжется с вами в ближайшее время."
-            : "Заявка успішно відправлена! Наш менеджер зв'яжеться з вами найближчим часом."
-        );
+        setStatus({ open: true, variant: "success" });
       } else {
         console.error("Помилка при відправці до Bitrix24:", bitrixResult.error);
-        alert(
-          currentLocale === "ru"
-            ? "Ошибка при отправке формы. Попробуйте еще раз."
-            : "Сталася помилка при відправці форми. Спробуйте ще раз."
-        );
+        setStatus({ open: true, variant: "error" });
       }
     } catch (error) {
       console.error("Загальна помилка:", error);
-      alert(
-        currentLocale === "ru"
-          ? "Произошла ошибка при отправке формы. Попробуйте еще раз."
-          : "Сталася помилка при відправці форми. Спробуйте ще раз."
-      );
+      setStatus({ open: true, variant: "error" });
     } finally {
       setIsSubmitting(false);
     }
@@ -200,6 +193,7 @@ export default function MainBanner() {
   }
 
   return (
+    <>
     <div className="relative min-h-screen">
       <div className="absolute inset-0">
         <img
@@ -363,5 +357,24 @@ export default function MainBanner() {
         </div>
       </div>
     </div>
+    <StatusModal
+      isOpen={status.open}
+      onClose={() => setStatus((prev) => ({ ...prev, open: false }))}
+      variant={status.variant}
+      title={
+        status.variant === "success"
+          ? dict.modal?.successTitle || "Заявка успішно відправлена!"
+          : dict.modal?.errorTitle || "Сталася помилка"
+      }
+      message={
+        status.variant === "success"
+          ? dict.modal?.successMessage ||
+            "Наш менеджер зв'яжеться з вами найближчим часом."
+          : dict.modal?.errorMessage ||
+            "Не вдалося відправити заявку. Спробуйте ще раз."
+      }
+      buttonText={dict.modal?.ok || "OK"}
+    />
+    </>
   );
 }

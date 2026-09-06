@@ -1,25 +1,22 @@
 "use client";
-import { useState, useCallback } from "react";
-import { GoogleMap, Marker, useJsApiLoader } from "@react-google-maps/api";
+import { useState } from "react";
 import Link from "next/link";
 import { useCurrentLanguage } from "@/hooks/getCurrentLanguage";
 import { useDictionary } from "@/hooks/getDictionary";
 import { Locale } from "@/i18n/config";
-
-const containerStyle = {
-  width: "100%",
-  height: "100%",
-};
-
-const center = {
-  lat: 50.49177962447067,
-  lng: 30.491855918214025,
-};
+import StatusModal from "@/components/StatusModal";
+import { GOOGLE_MAPS_LINK, MAP_EMBED_URL } from "@/utils/map";
 
 export default function SendRequestPage() {
   const [selectedOptions, setSelectedOptions] = useState<string[]>([]);
   const currentLocale = useCurrentLanguage() as Locale;
   const { dict } = useDictionary(currentLocale);
+  const [status, setStatus] = useState<{
+    open: boolean;
+    variant: "success" | "error";
+    title: string;
+    message: string;
+  }>({ open: false, variant: "success", title: "", message: "" });
 
   const handleToggle = (option: string) => {
     setSelectedOptions((prev) =>
@@ -31,28 +28,35 @@ export default function SendRequestPage() {
 
   const handleSubmit = () => {
     if (selectedOptions.length === 0) {
-      alert(dict?.sendRequestPage.noOptionSelected);
+      setStatus({
+        open: true,
+        variant: "error",
+        title: dict?.modal?.errorTitle || "Сталася помилка",
+        message:
+          dict?.sendRequestPage.noOptionSelected ||
+          "Оберіть хоча б одну опцію для замовлення.",
+      });
       return;
     }
 
     console.log("Замовлено додатково:", selectedOptions);
-    alert(dict?.sendRequestPage.saved);
+    setStatus({
+      open: true,
+      variant: "success",
+      title: dict?.modal?.successTitle || "Заявка успішно відправлена!",
+      message: dict?.sendRequestPage.saved || "Ваші побажання збережено!",
+    });
   };
 
-  const { isLoaded } = useJsApiLoader({
-    id: "google-map-script",
-    googleMapsApiKey: `${process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY}`,
-  });
-
-  const onLoad = useCallback((map: google.maps.Map) => {
-    const bounds = new window.google.maps.LatLngBounds(center);
-    map.fitBounds(bounds);
-  }, []);
-
   return (
+    <>
     <div className="flex flex-col relative">
       <div className="fixed hidden xl:flex left-10 top-10 bg-white rounded-full items-center justify-center h-32 w-32 z-20">
-        <img src="/sign.png" alt="Sign" className="object-contain w-full h-full" />
+        <img
+          src="/sign.png"
+          alt="Sign"
+          className="object-contain w-full h-full"
+        />
       </div>
       <section className="min-h-screen relative flex items-center justify-center text-white text-center px-4">
         <div className="absolute inset-0">
@@ -66,7 +70,11 @@ export default function SendRequestPage() {
 
         <div className="relative z-10 max-w-2xl w-full">
           <Link className="mb-4" href={`/${currentLocale}`}>
-            <img src="/logotip.png" alt="Logo" className="mx-auto w-40 h-40 object-contain" />
+            <img
+              src="/logotip.png"
+              alt="Logo"
+              className="mx-auto w-40 h-40 object-contain"
+            />
           </Link>
 
           <h1 className="text-2xl md:text-4xl font-bold mb-2">
@@ -110,25 +118,42 @@ export default function SendRequestPage() {
       </section>
 
       <div className="relative h-[300px]">
-        {isLoaded ? (
-          <GoogleMap
-            mapContainerStyle={containerStyle}
-            center={center}
-            zoom={12}
-            onLoad={onLoad}
-          >
-            <Marker position={center} />
-          </GoogleMap>
-        ) : (
-          <div className="w-full h-full flex items-center justify-center bg-gray-200 text-gray-600">
-            {dict?.sendRequestPage.mapLoading}
-          </div>
-        )}
+        <iframe
+          title="Anex Tour on map"
+          src={MAP_EMBED_URL}
+          className="absolute inset-0 w-full h-full border-0"
+          loading="lazy"
+          referrerPolicy="no-referrer-when-downgrade"
+          allowFullScreen
+        />
+        <a
+          href={GOOGLE_MAPS_LINK}
+          target="_blank"
+          rel="noopener noreferrer"
+          className="absolute bottom-3 left-3 z-10 rounded bg-white px-3 py-1.5 text-sm font-medium text-blue-900 shadow hover:bg-gray-100"
+        >
+          {currentLocale === "ru"
+            ? "Открыть в Google Maps"
+            : "Відкрити в Google Maps"}
+        </a>
       </div>
 
       <div className="flex justify-center items-center bg-white">
-        <img src="/logotip.png" alt="ANEX Tour Logo" className="w-[220px] h-[120px] object-contain" />
+        <img
+          src="/logotip.png"
+          alt="ANEX Tour Logo"
+          className="w-[220px] h-[120px] object-contain"
+        />
       </div>
     </div>
+    <StatusModal
+      isOpen={status.open}
+      onClose={() => setStatus((prev) => ({ ...prev, open: false }))}
+      variant={status.variant}
+      title={status.title}
+      message={status.message}
+      buttonText={dict?.modal?.ok || "OK"}
+    />
+    </>
   );
 }
