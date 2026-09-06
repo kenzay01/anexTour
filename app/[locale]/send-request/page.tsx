@@ -119,9 +119,9 @@ export default function SendRequestPage() {
 
       <div className="relative h-[300px]">
         <iframe
-          title="Anex Tour on map"
+          title="Anex Tour on Google Maps"
           src={MAP_EMBED_URL}
-          className="absolute inset-0 w-full h-full border-0"
+          className="absolute inset-0 w-full h-full border-0 pointer-events-none"
           loading="lazy"
           referrerPolicy="no-referrer-when-downgrade"
           allowFullScreen
@@ -130,12 +130,18 @@ export default function SendRequestPage() {
           href={GOOGLE_MAPS_LINK}
           target="_blank"
           rel="noopener noreferrer"
-          className="absolute bottom-3 left-3 z-10 rounded bg-white px-3 py-1.5 text-sm font-medium text-blue-900 shadow hover:bg-gray-100"
-        >
+          className="absolute inset-0 z-10"
+          aria-label={
+            currentLocale === "ru"
+              ? "Открыть в Google Maps"
+              : "Відкрити в Google Maps"
+          }
+        />
+        <span className="pointer-events-none absolute bottom-3 left-3 z-20 rounded bg-white px-3 py-1.5 text-sm font-medium text-blue-900 shadow">
           {currentLocale === "ru"
             ? "Открыть в Google Maps"
             : "Відкрити в Google Maps"}
-        </a>
+        </span>
       </div>
 
       <div className="flex justify-center items-center bg-white">
