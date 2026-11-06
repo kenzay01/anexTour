@@ -7,7 +7,7 @@ export async function sendToBitrix24(formData: {
 }) {
   try {
     const queryURL =
-      "https://crm-tour.bitrix24.eu/rest/1/siftfmappk919apf/crm.lead.add.json";
+      "https://crm-tour.bitrix24.eu/rest/1/aa8n527bdhmdad25/crm.lead.add.json";
 
     const params = new URLSearchParams();
 
